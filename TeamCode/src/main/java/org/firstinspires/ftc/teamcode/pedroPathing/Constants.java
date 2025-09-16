@@ -18,10 +18,10 @@ public class Constants {
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             // REMEMBER TO REVERSE ONCE WE TEST ON THE ROBOT
-            .rightFrontMotorName("rf")
-            .rightRearMotorName("rb")
-            .leftRearMotorName("lb")
-            .leftFrontMotorName("lf")
+            .rightFrontMotorName("rightFront")
+            .rightRearMotorName("rightBack")
+            .leftRearMotorName("leftBack")
+            .leftFrontMotorName("leftFront")
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
@@ -30,19 +30,19 @@ public class Constants {
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
     // USE PORTS 0 and 3 for encoders. Mechanical advantages of those.
     public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
-            .forwardEncoder_HardwareMapName("leftFront")
-            .strafeEncoder_HardwareMapName("rightRear")
-            .strafePodX(1.5)
-            .forwardPodY(-1.5)
-            .forwardEncoderDirection(Encoder.REVERSE)
+            .forwardEncoder_HardwareMapName("leftBack")
+            .strafeEncoder_HardwareMapName("rightBack")
+            .strafePodX(-5.2)
+            .forwardPodY(1.2)
+            .forwardTicksToInches(0.001984)
+            .strafeTicksToInches(-0.001987)
+           .forwardEncoderDirection(Encoder.FORWARD)
 
-
-            .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(
                     new RevHubOrientationOnRobot(
                             RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                            RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+                            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
                     )
             );
     public static Follower createFollower(HardwareMap hardwareMap) {
