@@ -10,11 +10,29 @@ import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.FilteredPIDFCoefficients;
+
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-        .mass(10.61);
+         .mass(10.61)
+         // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
 
+//            .headingPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0))
+  //          .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
+            //Uncomment one by one while tuning pid. 
+    //        .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0.0,0.01,0.6,0.0))
+      //      .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
+
+            .centripetalScaling(0.005)
+
+            //After tuning all of above run tests.
+            .useSecondaryTranslationalPIDF(true)
+            .useSecondaryHeadingPIDF(true)
+        .   useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             // REMEMBER TO REVERSE ONCE WE TEST ON THE ROBOT
