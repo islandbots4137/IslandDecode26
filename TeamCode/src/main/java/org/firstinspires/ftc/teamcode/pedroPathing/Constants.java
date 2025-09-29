@@ -27,12 +27,15 @@ public class Constants {
             //Uncomment one by one while tuning pid. 
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0.0,0.01,0.6,0.0))
       //      .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
-          
+
+            .forwardZeroPowerAcceleration(-38.44164)
+            .lateralZeroPowerAcceleration(-78.98164)
+            .useSecondaryDrivePIDF(true)
             .centripetalScaling(0.005)
             //After tuning all of above run tests.
-            .useSecondaryTranslationalPIDF(true)
-            .useSecondaryHeadingPIDF(true)
-            .useSecondaryDrivePIDF(true);
+         //   .useSecondaryTranslationalPIDF(true)
+         //   .useSecondaryHeadingPIDF(true)
+         //   .useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             // REMEMBER TO REVERSE ONCE WE TEST ON THE ROBOT
@@ -43,7 +46,10 @@ public class Constants {
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .xVelocity(88.3628778)
+            .yVelocity(69.0127749);
+
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
     // USE PORTS 0 and 3 for encoders. Mechanical advantages of those.
