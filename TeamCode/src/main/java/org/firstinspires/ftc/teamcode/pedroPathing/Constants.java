@@ -60,7 +60,7 @@ public class Constants {
             .forwardTicksToInches(0.001984)
             .strafeTicksToInches(-0.001987)
            .forwardEncoderDirection(Encoder.FORWARD)
-
+            .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(
                     new RevHubOrientationOnRobot(
