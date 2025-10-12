@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -14,27 +15,32 @@ import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 
 
+
+
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-         .mass(10.61)
-         // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.005, 0, 0.01, 0))
+            .mass(10.61)
+            // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.05, 0, 0.01, 0.5))
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
 
-            .headingPIDFCoefficients(new PIDFCoefficients(0.5, 0.01, 0.1, 0.1))
-         //   .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
+
+            .headingPIDFCoefficients(new PIDFCoefficients(0.1, 0.01, 0.1, 0.35))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
             //Uncomment one by one while tuning pid.
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.2,0.0,0.02,0.6,0.0))
-         //   .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0,0.001,0.6,0.025))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
+
 
             .centripetalScaling(0.000065)
+
 
             //After tuning all of above run tests.
             .useSecondaryTranslationalPIDF(true)
             .useSecondaryHeadingPIDF(true)
             .forwardZeroPowerAcceleration(-38.44164)
-            .lateralZeroPowerAcceleration(-78.98164)
-        .   useSecondaryDrivePIDF(true);
+            .lateralZeroPowerAcceleration(-78.61543)
+            .useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             // REMEMBER TO REVERSE ONCE WE TEST ON THE ROBOT
@@ -46,11 +52,14 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(88.3628778)
-            .yVelocity(69.0127749);
+            .xVelocity(77.1308918)
+            .yVelocity(57.8717747);
+    //
 
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+
+
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 10, 1);
     // USE PORTS 0 and 3 for encoders. Mechanical advantages of those.
     public static TwoWheelConstants localizerConstants = new TwoWheelConstants()
             .forwardEncoder_HardwareMapName("leftBack")
@@ -59,8 +68,8 @@ public class Constants {
             .forwardPodY(1.2)
             .forwardTicksToInches(0.001984)
             .strafeTicksToInches(-0.001987)
-           .forwardEncoderDirection(Encoder.FORWARD)
-
+            .forwardEncoderDirection(Encoder.FORWARD)
+            .strafeEncoderDirection(Encoder.REVERSE)
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(
                     new RevHubOrientationOnRobot(
@@ -76,4 +85,3 @@ public class Constants {
                 .build();
     }
 }
-//
