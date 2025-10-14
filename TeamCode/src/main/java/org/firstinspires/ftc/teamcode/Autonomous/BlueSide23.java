@@ -96,15 +96,18 @@ public class BlueSide23 extends OpMode {
                 break;
 
             case 3:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() & pathTimer.getElapsedTimeSeconds() >= 1.5) {
                     follower.followPath(line4);
+                    pathTimer.resetTimer();
                     setPathState(4);
                 }
                 break;
 
             case 4:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() & pathTimer.getElapsedTimeSeconds() >= 1.5)
+                {
                     follower.followPath(line5);
+                    pathTimer.resetTimer();
                     setPathState(5);
                 }
                 break;
