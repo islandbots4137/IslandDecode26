@@ -1,6 +1,4 @@
 package org.firstinspires.ftc.teamcode.Teleop;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
