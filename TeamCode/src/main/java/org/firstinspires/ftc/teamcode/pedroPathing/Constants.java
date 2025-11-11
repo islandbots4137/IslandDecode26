@@ -29,19 +29,19 @@ public class Constants {
          .mass(9.706877)
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
             .translationalPIDFCoefficients(new PIDFCoefficients(0.05, 0, 0.01, 0.5))
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
+            //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
 
 
          .mass(9.706877)
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
             .translationalPIDFCoefficients(new PIDFCoefficients(0.05, 0, 0.01, 0.5))
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
+            //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
 
             .headingPIDFCoefficients(new PIDFCoefficients(0.1, 0.01, 0.15, 0.2))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
+            //.secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
             //Uncomment one by one while tuning pid.
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.0,0.01,0.6,0.01))
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0.0005,0.001,0.6,0.0006))
+            //.secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
 
             .centripetalScaling(0.0065)
 
@@ -49,7 +49,7 @@ public class Constants {
             //After tuning all of above run tests.
             .useSecondaryTranslationalPIDF(true)
             .useSecondaryHeadingPIDF(true)
-            .forwardZeroPowerAcceleration(-8196.71)
+            .forwardZeroPowerAcceleration(-37.8)
             .lateralZeroPowerAcceleration(-43.7035)
             .useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
@@ -75,7 +75,7 @@ public class Constants {
             .strafeEncoder_HardwareMapName("leftBack")
             .strafePodX(-6.5)
             .forwardPodY(.2)
-            .forwardTicksToInches(0.001943365794)
+            .forwardTicksToInches(0.0020087)
             .strafeTicksToInches(0.0020468531)
             .forwardEncoderDirection(Encoder.FORWARD)
             .strafeEncoderDirection(Encoder.REVERSE)
