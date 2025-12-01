@@ -107,20 +107,20 @@ public class teleop extends LinearOpMode {
             }
             if (gamepad1.crossWasPressed()) {
                 autoIntake = !autoIntake;
-                spun = false;
-            }
-
-                if (autoIntake) {
+            // Commented out for now test how it works    spun = false;
+                if (autoIntake)
+                {
                     int r = colorSensor.red();
                     int g = colorSensor.green();
                     int b = colorSensor.blue();
 
                     boolean isTan = g > 50 && g < 80 && r > 30 && r < 50 && b > 30 && b < 55;
                     if (isTan) {
-                        intake.setPower(0.75);
+                        intake.setPower(0.8);
                         timer.reset();
                         spun = false;
-                    } else {
+                    }
+                    else {
                         intake.setPower(0);
                         if (!spun && timer.milliseconds() > 150) {
                             if (rotationTimes%3 != 2) {
@@ -131,8 +131,12 @@ public class teleop extends LinearOpMode {
                             }
                         }
                     }
-
-                } //else {
+                }
+                else
+                {
+                    intake.setPower(0);
+                }
+            } //else {
 //                    intake.setPower(0);
 //                }
 
