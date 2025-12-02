@@ -96,10 +96,12 @@ public class teleop extends LinearOpMode {
             if (gamepad1.dpad_up) {
 
                 positions -= 250;                      // spin to next ball
-                servo.setPosition(.05);
-                sleep(200);
                 servo.setPosition(0.6);
-                sleep(300);
+                sleep(100);
+                servo.setPosition(.05);
+                sleep(400);
+                servo.setPosition(0.6);
+                sleep(100);
                 magazine.setTargetPosition(positions);
                 magazine.setPower(0.7);
 
