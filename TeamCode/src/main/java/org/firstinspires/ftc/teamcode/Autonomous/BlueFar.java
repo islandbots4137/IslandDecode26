@@ -76,14 +76,18 @@ public class BlueFar extends LinearOpMode {
                     // After 1 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 2.5) {
                         feedOneBall();      // move to next state
-                        actionStarted = false; // reset flag for next state
+                        actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 3.5) {
                         feedOneBall();      // move to next state
-                        actionStarted = false; // reset flag for next state
+                        actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 5) {
                         feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 6) {
+                        stopShooter();
                         nextPathState();      // move to next state
                         actionStarted = false; // reset flag for next state
                     }
@@ -91,7 +95,7 @@ public class BlueFar extends LinearOpMode {
 
 
                 case 1:
-                    if (!follower.isBusy()) {
+                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path2);
                         nextPathState();
                     }
@@ -239,7 +243,7 @@ public class BlueFar extends LinearOpMode {
     private void rollerOn() { roller.setPower(0.8); }
     private void rollerOff() { roller.setPower(0.0); }
 
-    private void startShooterFast() { shooterMotor.setVelocity(-1400); }
+    private void startShooterFast() { shooterMotor.setVelocity(-1250); }
     private void startShooterSlow() { shooterMotor.setVelocity(-990); }
     private void stopShooter() { shooterMotor.setPower(0.0); }
 
