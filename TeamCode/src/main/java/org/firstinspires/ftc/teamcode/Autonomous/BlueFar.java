@@ -243,7 +243,7 @@ public class BlueFar extends LinearOpMode {
     private void rollerOn() { roller.setPower(0.8); }
     private void rollerOff() { roller.setPower(0.0); }
 
-    private void startShooterFast() { shooterMotor.setPower(-.45); }
+    private void startShooterFast() { shooterMotor.setPower(-.47); }
     private void startShooterSlow() { shooterMotor.setVelocity(-990); }
     private void stopShooter() { shooterMotor.setPower(0.0); }
 
