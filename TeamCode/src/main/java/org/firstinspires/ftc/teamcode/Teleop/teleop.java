@@ -8,12 +8,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-
+import org.firstinspires.ftc.teamcode.Mechanisms.TestBenchColor;
 import java.util.concurrent.TimeUnit;
 
 @TeleOp
 public class teleop extends LinearOpMode {
     boolean isAutoRunning = false;
+
+    TestBenchColor colorDetector = new TestBenchColor();
     int positions = 0;
 
     ElapsedTime autoTimer = new ElapsedTime();
@@ -29,19 +31,19 @@ public class teleop extends LinearOpMode {
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
         Servo servo = hardwareMap.servo.get("servo");
-        ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+     //   ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         magazine.setTargetPosition(0);
         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+        colorDetector.init(hardwareMap);
         // Reverse the left side motors.
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        colorSensor.enableLed(true);  // Turn on sensor's LED
+ //       colorSensor.enabled(true);  // Turn on sensor's LED
 
         // Constants
         boolean intakeOn = false;
@@ -108,25 +110,22 @@ public class teleop extends LinearOpMode {
 
 
             }
-        if (gamepad1.crossWasPressed())
+            TestBenchColor.DetectedColor detectedColor = colorDetector.getDetectedColor(telemetry);
+            if (gamepad1.crossWasPressed())
             {
                 autoIntake = !autoIntake;
                 spun=false;
-
             // Commented out for now test how it works    spun = false;
                 if (autoIntake)
                 {
-                    int r = colorSensor.red();
-                    int g = colorSensor.green();
-                    int b = colorSensor.blue();
-
-                    boolean isTan = g > 50 && g < 80 && r > 30 && r < 50 && b > 30 && b < 55;
+               /*     boolean isTan = g > 50 && g < 80 && r > 30 && r < 50 && b > 30 && b < 55;
                     telemetry.addData("Red", r);
                     telemetry.addData("Green", g);
                     telemetry.addData("Blue", b);
                     telemetry.addData("Is Tan?", isTan);
                     telemetry.update();
-                    if (isTan) {
+                 */
+                    if (color ==TestBenchColor.DetectedColor.TAN) {
                         intake.setPower(0.8);
                         timer.reset();
                         spun = false;
