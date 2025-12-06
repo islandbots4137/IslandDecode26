@@ -104,6 +104,9 @@ public class BlueFar extends LinearOpMode {
                 case 2:
                     if (!follower.isBusy()) {
                         follower.followPath(paths.Path3);
+                        rollerOn();
+                        sleep(500); // intake for a short period
+                        rollerOff();
                         nextPathState();
                     }
                     break;
@@ -125,6 +128,7 @@ public class BlueFar extends LinearOpMode {
                 case 5:
                     if (!follower.isBusy()) {
                         follower.followPath(paths.Path6);
+                        rollerOff();
                         nextPathState();
                     }
                     break;
@@ -135,6 +139,11 @@ public class BlueFar extends LinearOpMode {
                         // Example motor action: shoot one ball
 
                         feedOneBall();
+                        sleep(100);
+                        feedOneBall();
+                        sleep(100);
+                        feedOneBall();
+
                         nextPathState();
                     }
                     break;
@@ -152,13 +161,14 @@ public class BlueFar extends LinearOpMode {
                 case 8:
                     if (!follower.isBusy()) {
                         follower.followPath(paths.Path9);
-                        stopShooter();
+
                         nextPathState();
                     }
                     break;
 
                 case 9:
                     if (!follower.isBusy()) {
+                        stopShooter();
                         pathState = -1; // finished
                     }
                     break;

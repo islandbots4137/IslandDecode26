@@ -52,7 +52,7 @@ public class teleop extends LinearOpMode {
 
         boolean spun = false;
         boolean wasTan = false;
-        double shooterVelocity = -990;
+        double shooterVelocity = -960;
         double shooterVelocityFar = -1300;
         int rotationTimes = 0;
 
@@ -97,22 +97,18 @@ public class teleop extends LinearOpMode {
             if (gamepad1.dpad_up) {
 
                 positions -= 250;                      // spin to next ball
-                servo.setPosition(0.6);
-                sleep(100);
                 servo.setPosition(.05);
-                sleep(400);
-                servo.setPosition(0.6);
-                sleep(100);
-                servo.setPosition(.6);
-                sleep(200);
-                servo.setPosition(0.05);
                 sleep(300);
+                servo.setPosition(0.6);
+                sleep(400);
+
+
                 magazine.setTargetPosition(positions);
                 magazine.setPower(0.7);
 
 
             }
-            if (gamepad1.crossWasPressed())
+        if (gamepad1.crossWasPressed())
             {
                 autoIntake = !autoIntake;
                 spun=false;
@@ -155,7 +151,7 @@ public class teleop extends LinearOpMode {
 //                    intake.setPower(0);
 //                }
 
-                if (gamepad1.squareWasPressed()) {
+            if (gamepad1.squareWasPressed()) {
                     ShooterRunning = !ShooterRunning;
                     if (ShooterRunning) {
                         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
