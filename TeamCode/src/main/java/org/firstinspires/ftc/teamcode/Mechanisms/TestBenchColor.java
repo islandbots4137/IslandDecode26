@@ -14,10 +14,10 @@ public class TestBenchColor {
         UNKNOWN
 
     }
-    public void init(HardwareMap hwMap)
+    public void init(HardwareMap hardwareMap)
     {
-        colorSensor=hwMap.get(NormalizedColorSensor.class,"colorSensor");
-        colorSensor.setGain(3);
+        colorSensor=hardwareMap.get(NormalizedColorSensor.class,"colorSensor");
+        colorSensor.setGain(4);
     }
     public DetectedColor getDetectedColor(Telemetry telemetry) {
         NormalizedRGBA colors = colorSensor.getNormalizedColors(); // 4 values
@@ -32,10 +32,15 @@ public class TestBenchColor {
         telemetry.addData("red", normRed);
         telemetry.addData("green", normGreen);
         telemetry.addData("blue", normBlue);
-        if (normRed > 0.04 && normRed < 0.055 && normGreen > 0.07 && normGreen < 0.095 && normBlue < 0.052 && normBlue < 0.06) {
+        if (normRed > 0.055 && normRed < 0.07 && normGreen > 0.10 && normGreen < 0.12 && normBlue > 0.07 && normBlue < 0.08) {
             return DetectedColor.TAN;
         }
-        return DetectedColor.UNKNOWN;
+       else
+        {
+            return DetectedColor.UNKNOWN;
+        }
+
+
 
     }
 }
