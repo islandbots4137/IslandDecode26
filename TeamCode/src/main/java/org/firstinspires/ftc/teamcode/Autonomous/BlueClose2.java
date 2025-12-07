@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "BlueCloseWorking", group = "Autonomous")
-public class BlueClose extends LinearOpMode {
+@Autonomous(name = "BlueClose6pickup", group = "Autonomous")
+public class BlueClose2 extends LinearOpMode {
 
     // ---------- PATHING ----------
     private Follower follower;
@@ -139,52 +139,9 @@ public class BlueClose extends LinearOpMode {
                     break;
                 case 5:
                     if (!follower.isBusy()) {
-                        rollerOn();
-                        sleep(100);
                         follower.followPath(paths.Path6);
-                        feedOneBall();
-                        sleep(100);
-                        stopShooter();
-
-                    }
-                    break;
-                case 6:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path7);
-                        sleep(100);
-                        feedOneBall();
-                        sleep(100);
-
-                    }
-                    break;
-                case 7:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path8);
-                        sleep(100);
-                        rollerOff();
-                        startShooterFast();
-                    }
-                    break;
-                case 8:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path9);
-                        sleep(500);
-                        feedOneBall();
-                        sleep(200);
-                        feedOneBall();
-                        sleep(200);
-                        feedOneBall();
-                        sleep(100);
-                        nextPathState();
-
-                    }
-                    break;
-                case 9:
-                    if (!follower.isBusy()) {
-                        sleep(100);
                         stopShooter();
                         pathState = -1; // finished
-
                     }
                     break;
             }
@@ -217,7 +174,7 @@ public class BlueClose extends LinearOpMode {
         public Paths(Follower follower) {
 
             line1 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(21, 124), new Pose(50, 102)))
+                    .addPath(new BezierLine(new Pose(21, 124), new Pose(41, 103)))
                     .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(145))
                     .build();
 
@@ -237,27 +194,14 @@ public class BlueClose extends LinearOpMode {
                     .build();
 
             Path5 = follower.pathBuilder() //return to shoot
-                    .addPath(new BezierCurve(new Pose(24, 84), new Pose(50, 102), new Pose(50, 102)))
+                    .addPath(new BezierCurve(new Pose(24, 84), new Pose(54, 84), new Pose(41, 103)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(145))
                     .build();
 
             Path6 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(50, 102), new Pose(75, 79), new Pose(36, 60)))
+                    .addPath(new BezierCurve(new Pose(41, 103), new Pose(74.965, 78.761), new Pose(13, 70)))
                     .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(90))
                     .build();
-            Path7 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(36, 60), new Pose(30, 84)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-                    .build();
-            Path8 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(30, 60), new Pose(24, 84)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-                    .build();
-            Path9 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(24, 84), new Pose(78, 63), new Pose(50, 102)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(145))
-                    .build();
-
 
         }
     }
