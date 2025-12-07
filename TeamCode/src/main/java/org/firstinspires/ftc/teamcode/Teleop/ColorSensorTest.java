@@ -18,6 +18,6 @@ public class ColorSensorTest extends OpMode {
     @Override
     public void loop() {
         detectedColor = bench.getDetectedColor(telemetry);
-        telemetry.addData("Color Detected",detectedColor);
+        telemetry.addData("Color Detected", detectedColor);
     }
 }

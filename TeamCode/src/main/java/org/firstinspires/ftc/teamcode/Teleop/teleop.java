@@ -19,7 +19,7 @@ public class teleop extends LinearOpMode {
 
 
     TestBenchColor bench = new TestBenchColor();
-    int positions = 0;
+
 
     ElapsedTime autoTimer = new ElapsedTime();
 
@@ -59,7 +59,7 @@ public class teleop extends LinearOpMode {
         double shooterVelocity = -960;
         double shooterVelocityFar = -1300;
         int rotationTimes = 0;
-
+        int positions = 0;
         ElapsedTime timer = new ElapsedTime();
 
         waitForStart();
@@ -80,7 +80,8 @@ public class teleop extends LinearOpMode {
             double backLeftPower = (y - x + rx) / denominator;
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
-            TestBenchColor.DetectedColor detected = bench.getDetectedColor(telemetry);
+            TestBenchColor.DetectedColor detected = TestBenchColor.DetectedColor.UNKNOWN;
+
 
             if (gamepad1.left_trigger > 0 || gamepad1.right_trigger > 0) {
                 frontLeftMotor.setPower(frontLeftPower);
@@ -106,121 +107,101 @@ public class teleop extends LinearOpMode {
 
 
             }
+            detected = bench.getDetectedColor(telemetry);
+            if (gamepad1.crossWasPressed()) {
 
-
-            if (gamepad1.crossWasPressed())
-            {
                 autoIntake = !autoIntake;
-                spun=false;
+                spun = false;
+            }
             // Commented out for now test how it works    spun = false;
-                if (autoIntake)
-                {
-                    if (detected == TestBenchColor.DetectedColor.TAN) {
-                        intake.setPower(0.8);
-                        timer.reset();
-                        spun = false;
-                    }
-                    else {
-                        intake.setPower(0);
-                        if (!spun && timer.milliseconds() > 150) {
-                            if (rotationTimes%3 != 2) {
-                                positions = positions - 250;
-                                magazine.setTargetPosition(positions);
-                                spun = true;
-                                rotationTimes = rotationTimes + 1;
-                            }
-                        }
-                    }
+            if (autoIntake) {
+                if (detected == TestBenchColor.DetectedColor.TAN) {
+                    intake.setPower(0.8);
+                    spun = false;
                 }
-     //           else
-       //         {
-         //           intake.setPower(0);
-          //      }
-            } //else {
+                if (detected == TestBenchColor.DetectedColor.UNKNOWN && !spun) {
+                    magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    magazine.setPower(0.7);
+                    positions = positions - 250;
+                    magazine.setTargetPosition(positions);
+                    spun = true;
+                }
+            } else {
+                intake.setPower(0);
+            }
+
 //                    intake.setPower(0);
 //                }
 
             if (gamepad1.squareWasPressed()) {
-                    ShooterRunning = !ShooterRunning;
-                    if (ShooterRunning) {
-                        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                        shooter.setVelocity(shooterVelocity); // ? Pid to control velocity
+                ShooterRunning = !ShooterRunning;
+                if (ShooterRunning) {
+                    shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    shooter.setVelocity(shooterVelocity); // ? Pid to control velocity
 
-                    } else {
-                        shooter.setPower(0);
-                    }
+                } else {
+                    shooter.setPower(0);
                 }
-                // Just edit positions array once obtained
-                if (gamepad1.triangleWasPressed()) {
+            }
+            // Just edit positions array once obtained
+            if (gamepad1.triangleWasPressed()) {
+                positions = positions - 250;
+                magazine.setTargetPosition(positions);
+                magazine.setPower(0.7);
+            }
+            if (gamepad1.dpadRightWasPressed()) {
+                positions = positions - 125;
+                magazine.setTargetPosition(positions);
+                magazine.setPower(1.0);
+            }
+            if (gamepad1.dpadLeftWasPressed()) {
 
-                    positions = positions - 250;
-                    magazine.setTargetPosition(positions);
-                    magazine.setPower(0.7);
+                positions = positions + 125;
+
+                magazine.setTargetPosition(positions);
+                magazine.setPower(1.0);
+            }
+
+            /*
+
+             */
+            if (gamepad1.right_stick_button) {
+                ShooterRunning = !ShooterRunning;
+                if (ShooterRunning) {
+                    shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    shooter.setVelocity(shooterVelocityFar); // ? Pid to control velocity
+
+                } else {
+                    shooter.setPower(0);
                 }
-                if (gamepad1.dpadRightWasPressed()) {
-                    positions = positions + 30;
-                    magazine.setTargetPosition(positions);
-                    magazine.setPower(1.0);
+            }
+            if (gamepad1.circleWasPressed()) {
+                servo.setPosition(0.6);
+                sleep(100);
+                servo.setPosition(.05);
+                sleep(400);
+                servo.setPosition(0.6);
+                sleep(100);
+            }
+
+            if (gamepad1.leftBumperWasPressed()) {
+                intakeReverse = !intakeReverse;
+                if (intakeReverse) {
+                    intake.setPower(0.75);
+                } else {
+                    intake.setPower(0);
                 }
-                if (gamepad1.dpadLeftWasPressed()) {
 
-                    positions = positions - 30;
-
-                    magazine.setTargetPosition(positions);
-                    magazine.setPower(1.0);
+            }
+            if (gamepad1.rightBumperWasPressed()) {
+                intakeOn = !intakeOn;
+                if (intakeOn) {
+                    intake.setPower(-0.75);
+                } else {
+                    intake.setPower(0);
                 }
-
-         /*
-
-          */
-            if (gamepad1.right_stick_button)
-                {
-                  ShooterRunning = !ShooterRunning;
-                   if (ShooterRunning)
-                   {
-                       shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                       shooter.setVelocity(shooterVelocityFar); // ? Pid to control velocity
-
-                   }
-                   else
-                   {
-                       shooter.setPower(0);
-                   }
-                }
-                if (gamepad1.circleWasPressed()) {
-                    servo.setPosition(0.6);
-                    sleep(100);
-                    servo.setPosition(.05);
-                    sleep(400);
-                    servo.setPosition(0.6);
-                    sleep(100);
-                    if (rotationTimes == 2%3){
-                        rotationTimes = rotationTimes + 1;
-                    }
-                }
-                if (gamepad1.leftBumperWasPressed()) {
-                    intakeReverse = !intakeReverse;
-                    intakeOn = false;
-                    if (intakeReverse) {
-                        intake.setPower(0.6);
-                    } else {
-                        intake.setPower(0);
-                    }
-
-                }
-                if (gamepad1.rightBumperWasPressed()) {
-                    intakeOn = !intakeOn;
-                    if (intakeOn) {
-                        intake.setPower(-0.6);
-                    } else {
-                        intake.setPower(0);
-                    }
-
-                }
-                telemetry.addData("Detected Color", detected);
-                telemetry.update();
             }
         }
     }
-
+}
 
