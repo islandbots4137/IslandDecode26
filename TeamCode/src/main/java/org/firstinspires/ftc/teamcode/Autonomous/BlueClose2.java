@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "BlueClose6pickup", group = "Autonomous")
+@Autonomous(name = "BlueClose3pickup", group = "Autonomous")
 public class BlueClose2 extends LinearOpMode {
 
     // ---------- PATHING ----------
@@ -96,52 +96,120 @@ public class BlueClose2 extends LinearOpMode {
 
                 case 1:
                     if (!follower.isBusy() && !actionStarted) {
-                        rollerOn();
-                        sleep(400);
                         follower.followPath(paths.Path2);
-                        sleep(100);
-                        feedOneBall();
+                        rollerOn();
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();      // move to next state
                         nextPathState();
+                        actionStarted = false; // reset flag for next state
                     }
                     break;
 
                 case 2:
-                    if (!follower.isBusy()) {
+                    // Start path once
+                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path3);
-                        feedOneBall();
-                        sleep(500);
+                        rollerOn();
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();      // move to next state
                         nextPathState();
+                        actionStarted = false; // reset flag for next state
                     }
                     break;
 
                 case 3:
-                    if (!follower.isBusy()) {
+                    // Start path once
+                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path4);
-                        feedOneBall();
-                        sleep(500);
+                        rollerOn();
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();      // move to next state
                         nextPathState();
+                        actionStarted = false; // reset flag for next state
                     }
                     break;
 
                 case 4:
-                    if (!follower.isBusy()) {
-                        rollerOff();
+                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path5);
-                        sleep(500);
-                        feedOneBall();
-                        sleep(200);
-                        feedOneBall();
-                        sleep(200);
-                        feedOneBall();
-                        sleep(100);
+                        rollerOn();
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
+                        nextPathState();
+                        actionStarted = false; // reset flag for next state
+                    }
+                    break;
+
+                case 5:
+                    if (!follower.isBusy() && !actionStarted) {
+                        follower.followPath(paths.Path6);
+                        rollerOn();
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
+                        nextPathState();
+                        actionStarted = false; // reset flag for next state
+                    }
+                    break;
+
+                case 6:
+                    if (!follower.isBusy()) {
+                        follower.followPath(paths.Path7);
                         nextPathState();
                     }
                     break;
-                case 5:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path6);
+
+
+
+                case 7:
+                    if (!follower.isBusy() && !actionStarted) {
+                        startShooterFast();   // start shooter
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+
+                    // After 1 second, feed the ball
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 3.5) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 4.5) {
+                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 5.5) {
+                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 6) {
                         stopShooter();
-                        pathState = -1; // finished
+                        nextPathState();      // move to next state
+                        actionStarted = false; // reset flag for next state
+                    }
+                    break;
+                case 8:
+                    if (!follower.isBusy() && !actionStarted) {
+                        follower.followPath(paths.Path8);
+                        nextPathState();
+
                     }
                     break;
             }
@@ -174,33 +242,42 @@ public class BlueClose2 extends LinearOpMode {
         public Paths(Follower follower) {
 
             line1 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(21, 124), new Pose(41, 103)))
-                    .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(145))
+                    .addPath(new BezierLine(new Pose(21, 124), new Pose(50, 102)))
+                    .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(143))
                     .build();
 
             Path2 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(41, 103), new Pose(51.717, 92.283), new Pose(36, 84)))
-                    .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(180))
+                    .addPath(new BezierCurve(new Pose(50, 102), new Pose(91, 95), new Pose(56, 82)))
+                    .setLinearHeadingInterpolation(Math.toRadians(143), Math.toRadians(180))
                     .build();
 
             Path3 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(36, 84), new Pose(30, 84)))
+                    .addPath(new BezierLine(new Pose(56, 82), new Pose(48, 82)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             Path4 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(30, 84), new Pose(24, 84)))
+                    .addPath(new BezierLine(new Pose(48, 82), new Pose(42, 82)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
-            Path5 = follower.pathBuilder() //return to shoot
-                    .addPath(new BezierCurve(new Pose(24, 84), new Pose(54, 84), new Pose(41, 103)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(145))
+            Path5 = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(42, 82), new Pose(36, 82)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             Path6 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(41, 103), new Pose(74.965, 78.761), new Pose(13, 70)))
-                    .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(90))
+                    .addPath(new BezierLine(new Pose(36, 82), new Pose(30, 82)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                    .build();
+
+            Path7 = follower.pathBuilder() //return to shoot
+                    .addPath(new BezierCurve(new Pose(36, 82), new Pose(89, 83), new Pose(50, 102)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(145.5))
+                    .build();
+            Path8 = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(51, 102), new Pose(51, 110)))
+                    .setLinearHeadingInterpolation(Math.toRadians(145.5), Math.toRadians(145.5))
                     .build();
 
         }
@@ -211,7 +288,7 @@ public class BlueClose2 extends LinearOpMode {
     private void rollerOn() { roller.setPower(0.8); }
     private void rollerOff() { roller.setPower(0.0); }
 
-    private void startShooterFast() { shooterMotor.setPower(-.39); }
+    private void startShooterFast() { shooterMotor.setPower(-.341); }
     private void startShooterSlow() { shooterMotor.setVelocity(-990); }
     private void stopShooter() { shooterMotor.setPower(0.0); }
 
@@ -222,8 +299,14 @@ public class BlueClose2 extends LinearOpMode {
         sleep(800);
 
         positions -= 250;
-        magazine.setPower(0.7);
+        magazine.setPower(0.45);
         magazine.setTargetPosition(positions);
         sleep(400);
     }
+    private void spinUp() throws InterruptedException {
+        magazine.setPower(0.45);
+        positions -= 250;
+        magazine.setTargetPosition(positions);
+    }
 }
+

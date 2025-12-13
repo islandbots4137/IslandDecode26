@@ -97,13 +97,14 @@ public class teleop extends LinearOpMode {
             // Automated shooting
             if (gamepad1.dpad_up) {
 
+                magazine.setPower(0.35);
                 positions -= 250;                      // spin to next ball
                 servo.setPosition(.05);
                 sleep(300);
                 servo.setPosition(0.6);
                 sleep(400);
                 magazine.setTargetPosition(positions);
-                magazine.setPower(0.7);
+
 
 
             }
@@ -136,11 +137,25 @@ public class teleop extends LinearOpMode {
 //                    intake.setPower(0);
 //                }
 
+            if (gamepad2.triangleWasPressed()) {
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(0.35);
+                positions+=10;
+                magazine.setTargetPosition(positions);
+
+            }
+            if (gamepad2.circleWasPressed()) {
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(0.35);
+                positions-=10;
+                magazine.setTargetPosition(positions);
+
+            }
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {
-                    shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    shooter.setVelocity(shooterVelocity); // ? Pid to control velocity
+                   // shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    shooter.setPower(-0.365); // ? Pid to control velocity
 
                 } else {
                     shooter.setPower(0);
@@ -150,7 +165,7 @@ public class teleop extends LinearOpMode {
             if (gamepad1.triangleWasPressed()) {
                 positions = positions - 250;
                 magazine.setTargetPosition(positions);
-                magazine.setPower(0.7);
+                magazine.setPower(0.35);
             }
             if (gamepad1.dpadRightWasPressed()) {
                 positions = positions - 125;

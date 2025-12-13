@@ -248,27 +248,27 @@ public class BlueFar extends LinearOpMode {
                     .build();
 
             Path2 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(62, 12), new Pose(59.308, 35.585), new Pose(61, 37)))
+                    .addPath(new BezierCurve(new Pose(62, 12), new Pose(59.308, 35.585), new Pose(61, 35)))
                     .setLinearHeadingInterpolation(Math.toRadians(108.3), Math.toRadians(180))
                     .build();
 
             Path3 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(61, 37), new Pose(54, 37)))
+                    .addPath(new BezierLine(new Pose(61, 37), new Pose(54, 35)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             Path4 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(54, 37), new Pose(50, 37)))
+                    .addPath(new BezierLine(new Pose(54, 37), new Pose(50, 35)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             Path5 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(50, 37), new Pose(44, 37)))
+                    .addPath(new BezierLine(new Pose(50, 37), new Pose(42, 35)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
 
             Path6 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(44, 37), new Pose(78.761, 48.633), new Pose(61, 11)))
+                    .addPath(new BezierCurve(new Pose(42, 35), new Pose(78.761, 48.633), new Pose(61, 11)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(110))
                     .build();
 
@@ -296,7 +296,7 @@ public class BlueFar extends LinearOpMode {
     private void rollerOn() { roller.setPower(0.8); }
     private void rollerOff() { roller.setPower(0.0); }
 
-    private void startShooterFast() { shooterMotor.setPower(-.435); }
+    private void startShooterFast() { shooterMotor.setPower(-.445); }
     private void startShooterSlow() { shooterMotor.setVelocity(-990); }
     private void stopShooter() { shooterMotor.setPower(0.0); }
     private void shootOne()
@@ -312,12 +312,12 @@ public class BlueFar extends LinearOpMode {
         feederServo.setPosition(0.60);
         sleep(800);
         positions -= 250;
-        magazine.setPower(0.7);
+        magazine.setPower(0.45);
         magazine.setTargetPosition(positions);
         sleep(350);
     }
     private void spinUp() throws InterruptedException {
-        magazine.setPower(0.7);
+        magazine.setPower(0.45);
         positions -= 250;
         magazine.setTargetPosition(positions);
     }

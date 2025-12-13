@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "RedFarWorking", group = "Autonomous")
-public class RedFar extends LinearOpMode {
+@Autonomous(name = "RedClose", group = "Autonomous")
+public class RedClose extends LinearOpMode {
 
     // ---------- PATHING ----------
     private Follower follower;
@@ -45,12 +45,12 @@ public class RedFar extends LinearOpMode {
         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        feederServo.setPosition(0.60); // neutral
+        feederServo.setPosition(0.6); // neutral
 
         // ---------- PATHING INIT ----------
         follower = Constants.createFollower(hardwareMap);
-        // Mirror of (56, 7.5, 90°) is (144-56=88, 7.5, 90°)
-        follower.setStartingPose(new Pose(88, 7.5, Math.toRadians(90)));
+        // mirror of (21, 124, 145°) -> (123, 124, 35°)
+        follower.setStartingPose(new Pose(123, 124, Math.toRadians(35)));
         paths = new Paths(follower);
 
         telemetry.addLine("READY — Press PLAY");
@@ -65,26 +65,25 @@ public class RedFar extends LinearOpMode {
             switch (pathState) {
 
                 case 0:
+                    // Start path once
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.line1);
-                        startShooterFast();
-                        stateTimer.reset();
-                        actionStarted = true;
+                        startShooterFast();   // start shooter
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
                     }
 
+                    // After 1 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 2.5) {
                         feedOneBall();
-                        actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
+                    if (actionStarted && stateTimer.seconds() > 3) {
                         feedOneBall();
-                        actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 6.5) {
-                        shootOne();
-                        actionStarted = true;
+                    if (actionStarted && stateTimer.seconds() > 4) {
+                        feedOneBall();
                     }
-                    if (actionStarted && stateTimer.seconds() > 7) {
+                    if (actionStarted && stateTimer.seconds() > 5) {
                         stopShooter();
                         nextPathState();
                         actionStarted = false;
@@ -94,7 +93,14 @@ public class RedFar extends LinearOpMode {
                 case 1:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path2);
+                        rollerOn();
+                        stateTimer.reset();
+                        actionStarted = true;
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
                         nextPathState();
+                        actionStarted = false;
                     }
                     break;
 
@@ -119,11 +125,11 @@ public class RedFar extends LinearOpMode {
                         stateTimer.reset();
                         actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                   if (actionStarted && stateTimer.seconds() > 1) {
                         spinUp();
                         nextPathState();
                         actionStarted = false;
-                    }
+                    }  // save time?
                     break;
 
                 case 4:
@@ -133,8 +139,8 @@ public class RedFar extends LinearOpMode {
                         stateTimer.reset();
                         actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        rollerOff();
+                    if (actionStarted && stateTimer.seconds() > 1) {
+                        spinUp();
                         nextPathState();
                         actionStarted = false;
                     }
@@ -143,61 +149,80 @@ public class RedFar extends LinearOpMode {
                 case 5:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path6);
+                        rollerOn();
                         stateTimer.reset();
                         actionStarted = true;
                     }
-
-                    if (actionStarted && stateTimer.seconds() > 2) {
-                        feedOneBall();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4) {
-                        feedOneBall();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        feedOneBall();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 7) {
-                        stopShooter();
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
                         nextPathState();
                         actionStarted = false;
                     }
                     break;
 
                 case 6:
-                    if (!follower.isBusy()) {
+                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path7);
+                        rollerOn();
+                        stateTimer.reset();
+                        actionStarted = true;
+                    }
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
                         nextPathState();
+                        actionStarted = false;
                     }
                     break;
 
                 case 7:
                     if (!follower.isBusy()) {
-                        rollerOn();
-                        sleep(500);
                         follower.followPath(paths.Path8);
                         nextPathState();
                     }
                     break;
 
                 case 8:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path9);
-                        sleep(500);
+                    if (!follower.isBusy() && !actionStarted) {
+                        startShooterFast();
+                        stateTimer.reset();
+                        actionStarted = true;
+                    }
+
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        feedOneBall();
+                    }
+                    if (actionStarted && stateTimer.seconds() > 3.5) {
+                        feedOneBall();
+                    }
+                    if (actionStarted && stateTimer.seconds() > 4.5) {
+                        feedOneBall();
+                    }
+                    if (actionStarted && stateTimer.seconds() > 5.5) {
+                        feedOneBall();
+                    }
+                    if (actionStarted && stateTimer.seconds() > 6.5) {
+                        stopShooter();
                         nextPathState();
+                        actionStarted = false;
                     }
                     break;
 
                 case 9:
                     if (!follower.isBusy()) {
+                        follower.followPath(paths.Path9);
+                        nextPathState();
+                    }
+                    break;
+
+                case 10:
+                    if (!follower.isBusy() && !actionStarted) {
                         stopShooter();
                         pathState = -1; // finished
                     }
                     break;
             }
 
+            // Telemetry
             telemetry.addData("Path State", pathState);
             telemetry.addData("X", follower.getPose().getX());
             telemetry.addData("Y", follower.getPose().getY());
@@ -224,135 +249,133 @@ public class RedFar extends LinearOpMode {
 
         public Paths(Follower follower) {
 
-            // Mirrored paths:
-            // x' = 144 - x, θ' = 180° - θ
+            // mirror x with x' = 144 - x, headings with θ' = π - θ
 
             line1 = follower.pathBuilder()
-                    // (56,7.6)->(61,12), 90°->110.5°  ->  (88,7.6)->(83,12), 90°->69.5°
+                    // (21,124) -> (50,102), 145° -> 143°
+                    // → (123,124) -> (94,102), 35° -> 37°
                     .addPath(new BezierLine(
-                            new Pose(88, 7.6),
-                            new Pose(83, 12)))
+                            new Pose(123, 124),
+                            new Pose(94, 102)))
                     .setLinearHeadingInterpolation(
-                            Math.toRadians(90),
-                            Math.toRadians(69.5))
+                            Math.toRadians(35),
+                            Math.toRadians(33))
                     .build();
 
             Path2 = follower.pathBuilder()
-                    // (61,12),(59.308,35.585),(56,36)  110.5°->180°
-                    // -> (83,12),(84.692,35.585),(88,36) 69.5°->0°
+                    // (50,102),(91,95),(56,82), 143° -> 180°
+                    // → (94,102),(53,95),(88,82), 37° -> 0°
                     .addPath(new BezierCurve(
-                            new Pose(83, 12),
-                            new Pose(84.692, 35.585),
-                            new Pose(88, 36)))
+                            new Pose(94, 102),
+                            new Pose(53, 95),
+                            new Pose(88, 84)))
                     .setLinearHeadingInterpolation(
-                            Math.toRadians(69.5),
+                            Math.toRadians(33),
                             Math.toRadians(0))
                     .build();
 
             Path3 = follower.pathBuilder()
-                    // (56,36)->(52,36) -> (88,36)->(92,36)
+                    // (56,82)->(48,82) → (88,82)->(96,82)
                     .addPath(new BezierLine(
-                            new Pose(88, 36),
-                            new Pose(92, 36)))
+                            new Pose(88, 84),
+                            new Pose(100, 84)))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(0),
                             Math.toRadians(0))
                     .build();
 
             Path4 = follower.pathBuilder()
-                    // (52,36)->(44,36) -> (92,36)->(100,36)
+                    // (48,82)->(42,82) → (96,82)->(102,82)
                     .addPath(new BezierLine(
-                            new Pose(92, 36),
-                            new Pose(100, 36)))
+                            new Pose(100, 84),
+                            new Pose(108, 84)))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(0),
                             Math.toRadians(0))
                     .build();
 
             Path5 = follower.pathBuilder()
-                    // (44,36)->(39,36) -> (100,36)->(105,36)
+                    // (42,82)->(36,82) → (102,82)->(108,82)
                     .addPath(new BezierLine(
-                            new Pose(100, 36),
-                            new Pose(105, 36)))
+                            new Pose(108, 84),
+                            new Pose(116, 84)))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(0),
                             Math.toRadians(0))
                     .build();
 
             Path6 = follower.pathBuilder()
-                    // (39,36),(78.761,48.633),(61,11)  180°->110°
-                    // -> (105,36),(65.239,48.633),(83,11) 0°->70°
-                    .addPath(new BezierCurve(
-                            new Pose(105, 36),
-                            new Pose(65.239, 48.633),
-                            new Pose(83, 11)))
+                    // (36,82)->(30,82) → (108,82)->(114,82)
+                    .addPath(new BezierLine(
+                            new Pose(116, 84),
+                            new Pose(122, 84)))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(0),
-                            Math.toRadians(70))
+                            Math.toRadians(0))
                     .build();
 
             Path7 = follower.pathBuilder()
-                    // (61,11),(65.951,63.578),(39,59.5) 110°->180°
-                    // -> (83,11),(78.049,63.578),(105,59.5) 70°->0°
-                    .addPath(new BezierCurve(
-                            new Pose(83, 11),
-                            new Pose(78.049, 63.578),
-                            new Pose(105, 59.5)))
-                    .setLinearHeadingInterpolation(
-                            Math.toRadians(70),
-                            Math.toRadians(0))
-                    .build();
-
-            Path8 = follower.pathBuilder()
-                    // (39,59.5)->(32,59.5) -> (105,59.5)->(112,59.5)
+                    // (36,82)->(30,82) → (108,82)->(114,82)
                     .addPath(new BezierLine(
-                            new Pose(105, 59.5),
-                            new Pose(112, 59.5)))
+                            new Pose(122, 84),
+                            new Pose(128, 84)))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(0),
                             Math.toRadians(0))
+                    .build();
+
+            Path8 = follower.pathBuilder() // return to shoot
+                    // (36,82),(89,83),(50,102) → (108,82),(55,83),(94,102)
+                    // 180° -> 145° → 0° -> 35°
+                    .addPath(new BezierCurve(
+                            new Pose(108, 84),
+                            new Pose(55, 83),
+                            new Pose(94, 102)))
+                    .setLinearHeadingInterpolation(
+                            Math.toRadians(0),
+                            Math.toRadians(32.5))
                     .build();
 
             Path9 = follower.pathBuilder()
-                    // (32,59.5)->(18,54) -> (112,59.5)->(126,54)
+                    // (36,82)->(30,82) → (108,82)->(114,82)
                     .addPath(new BezierLine(
-                            new Pose(112, 59.5),
-                            new Pose(126, 54)))
+                            new Pose(94, 102),
+                            new Pose(87, 102)))
                     .setLinearHeadingInterpolation(
                             Math.toRadians(0),
                             Math.toRadians(0))
                     .build();
+
+//            Path6 = follower.pathBuilder()
+//                    .addPath(new BezierCurve(new Pose(41, 103), new Pose(74.965, 78.761), new Pose(13, 70)))
+//                    .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(90))
+//                    .build();
         }
     }
 
     // ---------------- HARDWARE HELPER FUNCTIONS ----------------
 
+
     private void rollerOn() { roller.setPower(0.8); }
     private void rollerOff() { roller.setPower(0.0); }
 
-    private void startShooterFast() { shooterMotor.setPower(-.46); }
+    private void startShooterFast() { shooterMotor.setPower(-.3425); } // -0.3425
     private void startShooterSlow() { shooterMotor.setVelocity(-990); }
     private void stopShooter() { shooterMotor.setPower(0.0); }
 
-    private void shootOne() {
-        feederServo.setPosition(0.0);
-        sleep(300);
-        feederServo.setPosition(0.60);
-    }
-
     private void feedOneBall() throws InterruptedException {
-        feederServo.setPosition(0.0);
+        feederServo.setPosition(0);
         sleep(300);
-        feederServo.setPosition(0.60);
-        sleep(800);
-        positions -= 250;
-        magazine.setPower(0.7);
-        magazine.setTargetPosition(positions);
-        sleep(350);
-    }
+        feederServo.setPosition(0.6);
+        sleep(800); // working: 800 Try Next: 700
 
+        positions -= 250;
+        magazine.setPower(0.45);
+        magazine.setTargetPosition(positions);
+        sleep(400);
+    }
     private void spinUp() throws InterruptedException {
-        magazine.setPower(0.7);
+        magazine.setPower(0.45);
         positions -= 250;
         magazine.setTargetPosition(positions);
     }
