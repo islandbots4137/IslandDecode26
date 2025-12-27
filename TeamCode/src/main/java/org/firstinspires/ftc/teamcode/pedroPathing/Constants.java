@@ -28,9 +28,6 @@ public class Constants {
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
             .translationalPIDFCoefficients(new PIDFCoefficients(0.05, 0, 0.01, 0.5))
             //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
-
-
-         .mass(9.706877)
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
             .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0, 0.001, 0.03))
             //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
@@ -41,7 +38,7 @@ public class Constants {
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0.0005,0.001,0.6,0.0006))
             //.secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
 
-            .centripetalScaling(0.0065)
+            .centripetalScaling(0.0065) // RETUNE this
 
 
             //After tuning all of above run tests.

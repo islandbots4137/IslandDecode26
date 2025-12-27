@@ -36,6 +36,8 @@ public class LimeLightApril extends OpMode {
             for (LLResultTypes.FiducialResult fr : fiducialResults) {
                 telemetry.addData("April Tag", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
             }
+
+            telemetry.addData("Distance",llResult.getBotposeAvgDist());
             telemetry.addData("Tx", llResult.getTx());
             telemetry.addData("Ty", llResult.getTy());
             telemetry.addData("Ta", llResult.getTa());

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotserver.internal.webserver.controlhubupdater.re
 
 import java.util.List;
 
-public class    Limelight3ATest extends OpMode {
+public class Limelight3ATest extends OpMode {
 
 
         private Limelight3A Limelight;
@@ -46,7 +46,7 @@ public class    Limelight3ATest extends OpMode {
             Limelight.updateRobotOrientation(orientation.getYaw());
             LLResult llResult = Limelight.getLatestResult();
             if (llResult != null && llResult.isValid()) {
-                Pose3D botPose = llResult.getBotpose();
+                Pose3D botPose = llResult.getBotpose_MT2();
                 List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
                     telemetry.addData("April Tag", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Mechanisms.TestBenchColor;
 import java.util.concurrent.TimeUnit;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 @TeleOp
 public class teleop extends LinearOpMode {
     boolean isAutoRunning = false;
@@ -31,7 +32,8 @@ public class teleop extends LinearOpMode {
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
-        DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter1");
+        DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
         Servo servo = hardwareMap.servo.get("servo");
@@ -46,20 +48,6 @@ public class teleop extends LinearOpMode {
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        // Constants
-        boolean intakeOn = false;
-        boolean intakeReverse = false;
-        boolean PusherScore = false;
-        boolean ShooterRunning = false;
-        boolean autoIntake = false;
-
-        boolean spun = false;
-        boolean wasTan = false;
-        double shooterVelocity = -960;
-        double shooterVelocityFar = -1300;
-        int rotationTimes = 0;
-        int positions = 0;
         ElapsedTime timer = new ElapsedTime();
 
         waitForStart();
@@ -96,16 +84,13 @@ public class teleop extends LinearOpMode {
             }
             // Automated shooting
             if (gamepad1.dpad_up) {
-
-                magazine.setPower(0.35);
+                magazine.setPower(magazinePower);
                 positions -= 250;                      // spin to next ball
-                servo.setPosition(.05);
+                servo.setPosition(servoForward);
                 sleep(300);
-                servo.setPosition(0.6);
+                servo.setPosition(servoBack);
                 sleep(400);
                 magazine.setTargetPosition(positions);
-
-
 
             }
             detected = bench.getDetectedColor(telemetry);
@@ -139,14 +124,14 @@ public class teleop extends LinearOpMode {
 
             if (gamepad2.triangleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(0.35);
+                magazine.setPower(magazinePower);
                 positions+=10;
                 magazine.setTargetPosition(positions);
 
             }
             if (gamepad2.circleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(0.35);
+                magazine.setPower(magazinePower);
                 positions-=10;
                 magazine.setTargetPosition(positions);
 
@@ -154,35 +139,31 @@ public class teleop extends LinearOpMode {
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {
-                   // shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    shooter.setPower(-0.365); // ? Pid to control velocity
-
+                    shooter.setVelocity(shooterVelocity); // ? Pid to control velocity
+                    shooter2.setVelocity(shooterVelocity);
                 } else {
-                    shooter.setPower(0);
+                    shooter.setVelocity(0);
                 }
             }
             // Just edit positions array once obtained
             if (gamepad1.triangleWasPressed()) {
                 positions = positions - 250;
                 magazine.setTargetPosition(positions);
-                magazine.setPower(0.35);
+                magazine.setPower(magazinePower);
             }
             if (gamepad1.dpadRightWasPressed()) {
                 positions = positions - 125;
                 magazine.setTargetPosition(positions);
-                magazine.setPower(1.0);
+                magazine.setPower(magazinePower);
             }
             if (gamepad1.dpadLeftWasPressed()) {
 
                 positions = positions + 125;
 
                 magazine.setTargetPosition(positions);
-                magazine.setPower(1.0);
+                magazine.setPower(magazinePower);
             }
 
-            /*
-
-             */
             if (gamepad1.right_stick_button) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {
@@ -194,18 +175,16 @@ public class teleop extends LinearOpMode {
                 }
             }
             if (gamepad1.circleWasPressed()) {
-                servo.setPosition(0.6);
+                servo.setPosition(servoForward);
                 sleep(100);
-                servo.setPosition(.05);
+                servo.setPosition(servoBack);
                 sleep(400);
-                servo.setPosition(0.6);
-                sleep(100);
             }
 
             if (gamepad1.leftBumperWasPressed()) {
                 intakeReverse = !intakeReverse;
                 if (intakeReverse) {
-                    intake.setPower(0.75);
+                    intake.setPower(intakeOut);
                 } else {
                     intake.setPower(0);
                 }
@@ -214,7 +193,7 @@ public class teleop extends LinearOpMode {
             if (gamepad1.rightBumperWasPressed()) {
                 intakeOn = !intakeOn;
                 if (intakeOn) {
-                    intake.setPower(-0.75);
+                    intake.setPower(intakeIn);
                 } else {
                     intake.setPower(0);
                 }
