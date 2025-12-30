@@ -34,6 +34,7 @@ public class teleop extends LinearOpMode {
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
         DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter1");
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
+        shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
         Servo servo = hardwareMap.servo.get("servo");
@@ -42,6 +43,9 @@ public class teleop extends LinearOpMode {
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         magazine.setTargetPosition(0);
+        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // Reverse the left side motors.
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -150,6 +154,7 @@ public class teleop extends LinearOpMode {
                 positions = positions - 250;
                 magazine.setTargetPosition(positions);
                 magazine.setPower(magazinePower);
+                magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
             if (gamepad1.dpadRightWasPressed()) {
                 positions = positions - 125;
@@ -169,16 +174,15 @@ public class teleop extends LinearOpMode {
                 if (ShooterRunning) {
                     shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     shooter.setVelocity(shooterVelocityFar); // ? Pid to control velocity
-
+                    shooter2.setVelocity(shooterVelocityFar);
                 } else {
                     shooter.setPower(0);
                 }
             }
             if (gamepad1.circleWasPressed()) {
                 servo.setPosition(servoForward);
-                sleep(100);
+                sleep(200);
                 servo.setPosition(servoBack);
-                sleep(400);
             }
 
             if (gamepad1.leftBumperWasPressed()) {

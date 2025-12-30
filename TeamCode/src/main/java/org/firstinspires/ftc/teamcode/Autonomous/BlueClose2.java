@@ -24,6 +24,8 @@ public class BlueClose2 extends LinearOpMode {
 
     // ---------- HARDWARE ----------
     private DcMotorEx shooterMotor;
+
+    private DcMotorEx shooterMotor2;
     private DcMotorEx magazine;
     private DcMotor roller;
     private Servo feederServo;
@@ -36,7 +38,8 @@ public class BlueClose2 extends LinearOpMode {
 
 
         // ---------------- HARDWARE MAP ----------------
-        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter1");
+        shooterMotor2=hardwareMap.get(DcMotorEx.class,"shooter2");
         magazine     = hardwareMap.get(DcMotorEx.class, "magazine");
         roller       = hardwareMap.get(DcMotor.class, "intake");
         feederServo  = hardwareMap.get(Servo.class, "servo");
@@ -289,7 +292,8 @@ public class BlueClose2 extends LinearOpMode {
     private void rollerOff() { roller.setPower(0.0); }
 
     private void startShooterFast() { shooterMotor.setPower(-.341); }
-    private void startShooterSlow() { shooterMotor.setVelocity(-990); }
+    private void startShooterSlow() { shooterMotor.setVelocity(1200);
+        shooterMotor2.setVelocity(1200);}
     private void stopShooter() { shooterMotor.setPower(0.0); }
 
     private void feedOneBall() throws InterruptedException {
@@ -297,7 +301,6 @@ public class BlueClose2 extends LinearOpMode {
         sleep(300);
         feederServo.setPosition(0.6);
         sleep(800);
-
         positions -= 250;
         magazine.setPower(0.45);
         magazine.setTargetPosition(positions);

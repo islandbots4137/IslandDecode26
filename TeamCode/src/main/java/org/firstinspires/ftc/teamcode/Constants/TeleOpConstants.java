@@ -5,8 +5,8 @@ import com.pedropathing.math.MathFunctions;
 
 public final class TeleOpConstants {
     //Shooter Constants
-    public static final double shooterVelocity=960;
-    public static final double shooterVelocityFar=1300;
+    public static final double shooterVelocity=1200;
+    public static final double shooterVelocityFar=1375;
     public static boolean ShooterRunning = false;
     public static double shooterSpeed(double goalDist)
     {
@@ -35,7 +35,7 @@ public final class TeleOpConstants {
 
     // PUSHER
     public static boolean PusherScore = false;
-    public static double servoForward=0.05;
+    public static double servoForward=0;
     public static double servoBack=0.6;
 
 
