@@ -1,23 +1,17 @@
 package org.firstinspires.ftc.teamcode.Constants;
 
 
-import com.pedropathing.math.MathFunctions;
+
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 public final class TeleOpConstants {
     //Shooter Constants
-    public static final double shooterVelocity=1200;
-    public static final double shooterVelocityFar=1375;
+    public static final double shooterVelocity=1350;
+    public static final double shooterVelocityFar=1390;
     public static boolean ShooterRunning = false;
-    public static double shooterSpeed(double goalDist)
-    {
-        return MathFunctions.clamp(0,0,0);
-    }
-    public static double hoodAngle(double goalDist)
-    {
-        return MathFunctions.clamp(0,0,0);
-    }
-
     //MAGAZINE CONSTANTS
+
+
     public static int positions=0;
     public static boolean spun = false;
     public static int rotationTimes = 0;
@@ -29,13 +23,23 @@ public final class TeleOpConstants {
     public static boolean intakeOn = false;
     public static boolean intakeReverse = false;
     public static boolean autoIntake = false;
-    public static double intakeIn=-0.75;
-    public static double intakeOut=0.75;
+    public static double intakeIn=-0.50;
+    public static double intakeOut=0.50;
 
+    public static double INDEX_POWER = 0.20;
+    public static double INDEX_TIMEOUT_S = 1.5;
+    // Auto Turning Constants
+    public static double TAG_TURN_kP = 0.02;   // start here
+    public static double MAX_RX = 0.4;
+    public static double TX_DEADBAND = 1.0;    // degrees
+    public static double GREEN_POS = 0.5;     // aligned
+    public static double NOT_READY_POS = 1; // not aligned
+    public static double NO_TAG_POS = 0.10;    // no tag
+    public static double ALIGN_THRESH_DEG = 5.0;
 
     // PUSHER
     public static boolean PusherScore = false;
-    public static double servoForward=0;
+    public static double servoForward=0.15;
     public static double servoBack=0.6;
 
 
