@@ -24,7 +24,7 @@ public class Constants {
 
 
 
-         .mass(10.206877)
+         .mass(12.7913)
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
             .translationalPIDFCoefficients(new PIDFCoefficients(0.05, 0, 0.01, 0.5))
             //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))

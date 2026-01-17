@@ -240,29 +240,14 @@ public class teleop extends LinearOpMode {
                 }
             }
             // Just edit positions array once obtained
-           /*
+
             if (gamepad1.triangleWasPressed()) {
 
-                    // spin slowly until switch hits
-                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    magazine.setPower(0.2); // slow
-                positions = positions - 250;
+                positions = positions-250;
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 magazine.setTargetPosition(positions);
                 magazine.setPower(magazinePower);
 
-            } */
-      //      boolean pressed = !magSwitch.getState();      // if backwards, remove the '!'
-        //    boolean pressedEdge = pressed && !lastPressed;
-        //    lastPressed = pressed;
-
-// Start indexing on triangle press (only if not currently indexing)
-            if (gamepad1.triangleWasPressed() && !indexing && !requireRelease) {
-                indexing = true;
-                indexTimer.reset();
-
-                magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                magazine.setPower(INDEX_POWER);
             }
 
             if (gamepad1.right_stick_button) {

@@ -171,65 +171,111 @@ public class BlueFar extends LinearOpMode {
                         actionStarted = false; // reset flag for next state
                     }
                     break;
-
                 case 6:
-                    if (!follower.isBusy() && !actionStarted) {
+                    if (!follower.isBusy()) {
                         follower.followPath(paths.Path7);
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-
-                    if (actionStarted && !follower.isBusy()) {
                         nextPathState();
-                        actionStarted = false;
                     }
                     break;
 
                 // --------- SHOOT SEQUENCE STATE (uses sleep like your example)
                 case 7:
-                    if (!actionStarted) {
-                        startShooterFast();
-                        // or startShooterSlow();
-                        stateTimer.reset();
-                        actionStarted = true;
+                    if (!follower.isBusy() && !actionStarted) {
+                        startShooterFast();   // start shooter
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
                     }
 
-                    // Shoot 3 balls (edit count/timing)
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                    // After 1 second, feed the ball
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 3.5) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 4.5) {
                         feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 5.5) {
                         feedOneBall();
-                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 6) {
                         stopShooter();
-                        nextPathState();
-                        actionStarted = false;
+                        nextPathState();      // move to next state
+                        actionStarted = false; // reset flag for next state
                     }
                     break;
-
                 case 8:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path8);
+                        rollerOn();
                         stateTimer.reset();
                         actionStarted = true;
                     }
-
-                    if (actionStarted && !follower.isBusy()) {
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
                         nextPathState();
-                        actionStarted = false;
+                        actionStarted = false; // reset flag for next state
                     }
                     break;
 
                 case 9:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path9);
+                        rollerOn();
                         stateTimer.reset();
                         actionStarted = true;
                     }
-
-                    if (actionStarted && !follower.isBusy()) {
-                        rollerOff();
-                        stopShooter();
-                        pathState = -1; // done
+                    if (actionStarted && stateTimer.seconds() > 1.5) {
+                        spinUp();
+                        nextPathState();
+                        actionStarted = false; // reset flag for next state
                     }
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        spinUp();
+                        nextPathState();
+                        actionStarted = false; // reset flag for next state
+                    }
+                    break;
+                case 10:
+                    if (!follower.isBusy() && !actionStarted) {
+                        follower.followPath(paths.Path10);
+                        nextPathState();
+                    }
+                case 11:
+                    if (!follower.isBusy() && !actionStarted) {
+                        startShooterFast();   // start shooter
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
+                    }
+
+                    // After 1 second, feed the ball
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 3.5) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 4.5) {
+                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 5.5) {
+                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 6) {
+                        stopShooter();
+                        nextPathState();      // move to next state
+                        actionStarted = false; // reset flag for next state
+                    }
+
                     break;
             }
 
