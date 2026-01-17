@@ -71,7 +71,7 @@ public class BlueClose2 extends LinearOpMode {
                     // Start path once
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.line1);
-                        startShooterFast();   // start shooter
+                        startShooterSlow();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
@@ -180,7 +180,7 @@ public class BlueClose2 extends LinearOpMode {
 
                 case 7:
                     if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
+                        startShooterSlow();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }

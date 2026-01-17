@@ -53,8 +53,8 @@ public class BlueFar extends LinearOpMode {
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
         feederServo.setPosition(0.6); // neutral
 
         // ---------- PATHING INIT ----------
@@ -311,13 +311,13 @@ shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             Path1 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(55.511, 7.374),
-                            new Pose(60.632, 9.4)
+                            new Pose(60.632, 8)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(109)).build();
 
             Path2 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(60.632, 9.4),
+                            new Pose(60.632, 8),
                             new Pose(55.000, 35.000)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(109), Math.toRadians(180)).build();
@@ -352,7 +352,7 @@ shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             Path7 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(40.000, 35.000),
-                            new Pose(61.192, 9.4)
+                            new Pose(61.192, 8)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(111)).build();
 
@@ -385,7 +385,6 @@ shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     private void rollerOff() { roller.setPower(0.0); }
 
     private void startShooterFast() {
-        // Match your existing behavior/sign
         shooterMotor.setVelocity(1380);
         shooterMotor2.setVelocity(1380);
     }
