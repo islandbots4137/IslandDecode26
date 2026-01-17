@@ -309,54 +309,54 @@ public class BlueFar extends LinearOpMode {
             Path1 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(55.511, 7.374),
-                            new Pose(60.632, 20.279)
+                            new Pose(60.632, 9.4)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(109)).build();
 
             Path2 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(60.632, 20.279),
-                            new Pose(45.000, 35.000)
+                            new Pose(60.632, 9.4),
+                            new Pose(55.000, 35.000)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(109), Math.toRadians(180)).build();
 
             Path3 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(45.000, 35.000),
-                            new Pose(40.000, 35.000)
+                            new Pose(55.000, 35.000),
+                            new Pose(52.000, 35.000)
                     )
             ).setConstantHeadingInterpolation(Math.toRadians(180)).build();
 
             Path4 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(40.000, 35.000),
-                            new Pose(36.000, 35.000)
+                            new Pose(52.000, 35.000),
+                            new Pose(48.000, 35.000)
                     )
             ).setTangentHeadingInterpolation().build();
 
             Path5 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(36.000, 35.000),
-                            new Pose(32.000, 35.000)
+                            new Pose(48.000, 35.000),
+                            new Pose(44.000, 35.000)
                     )
             ).setTangentHeadingInterpolation().build();
             Path6 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(36.000, 35.000),
-                            new Pose(30.000, 35.000)
+                            new Pose(44.000, 35.000),
+                            new Pose(40.000, 35.000)
                     )
             ).setTangentHeadingInterpolation().build();
 
             Path7 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(30.000, 35.000),
-                            new Pose(61.192, 19.326)
+                            new Pose(40.000, 35.000),
+                            new Pose(61.192, 9.4)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(111)).build();
 
             Path8 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(61.192, 19.326),
+                            new Pose(61.192, 9.4),
                             new Pose(10.627, 12.582)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(109), Math.toRadians(225)).build();

@@ -243,8 +243,8 @@ public class teleop extends LinearOpMode {
 
             if (gamepad1.triangleWasPressed()) {
 
-                positions = positions-250;
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                positions = positions-250;
                 magazine.setTargetPosition(positions);
                 magazine.setPower(magazinePower);
 
