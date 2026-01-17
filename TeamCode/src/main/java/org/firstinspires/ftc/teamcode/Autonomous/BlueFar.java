@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -52,7 +53,8 @@ public class BlueFar extends LinearOpMode {
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         feederServo.setPosition(0.6); // neutral
 
         // ---------- PATHING INIT ----------
