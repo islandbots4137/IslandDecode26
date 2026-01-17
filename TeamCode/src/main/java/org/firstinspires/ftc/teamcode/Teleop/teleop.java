@@ -123,12 +123,12 @@ public class teleop extends LinearOpMode {
             odo.update();
             double headingDeg = odo.getHeading(AngleUnit.DEGREES);
             double headingRad = Math.toRadians(headingDeg);
-            if (gamepad1.a)
+            if (gamepad2.dpad_left)
             {
                 headingSetpoint = 45;
                 runAutoTurn = true;
             }
-            else if (gamepad1.b) {
+            else if (gamepad2.dpad_right) {
                 headingSetpoint = 135;
                 runAutoTurn = true;
             }
