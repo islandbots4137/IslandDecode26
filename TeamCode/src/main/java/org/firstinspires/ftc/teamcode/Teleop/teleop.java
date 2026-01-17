@@ -43,8 +43,8 @@ public class teleop extends LinearOpMode {
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
 
-        DigitalChannel magSwitch  = hardwareMap.get(DigitalChannel.class, "magHome");
-        magSwitch.setMode(DigitalChannel.Mode.INPUT);
+     //   DigitalChannel magSwitch  = hardwareMap.get(DigitalChannel.class, "magHome");
+     //   magSwitch.setMode(DigitalChannel.Mode.INPUT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.FORWARD);
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
@@ -248,9 +248,9 @@ public class teleop extends LinearOpMode {
                 magazine.setPower(magazinePower);
 
             } */
-            boolean pressed = !magSwitch.getState();      // if backwards, remove the '!'
-            boolean pressedEdge = pressed && !lastPressed;
-            lastPressed = pressed;
+      //      boolean pressed = !magSwitch.getState();      // if backwards, remove the '!'
+        //    boolean pressedEdge = pressed && !lastPressed;
+        //    lastPressed = pressed;
 
 // Start indexing on triangle press (only if not currently indexing)
             if (gamepad1.triangleWasPressed() && !indexing && !requireRelease) {
@@ -261,7 +261,7 @@ public class teleop extends LinearOpMode {
                 magazine.setPower(INDEX_POWER);
             }
 
-// While indexing, stop when switch triggers
+/* While indexing, stop when switch triggers
             if (indexing) {
                 if (pressedEdge) {
                     magazine.setPower(0);
@@ -290,7 +290,7 @@ public class teleop extends LinearOpMode {
                 magazine.setTargetPosition(positions);
                 magazine.setPower(magazinePower);
             }
-
+*/
             if (gamepad1.right_stick_button) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {
