@@ -24,6 +24,9 @@ public class teleop extends LinearOpMode {
     boolean lastPressed = false;
     boolean indexing = false;
     boolean requireRelease = false;
+    boolean autoTurnEnabled = false;
+    boolean lastSquare = false;   // for edge detection
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -73,15 +76,22 @@ public class teleop extends LinearOpMode {
             double y = -gamepad1.left_stick_y; //front-back;  remember, Y stick value is reversed
             double x = gamepad1.left_stick_x; //left-right
             double rx = gamepad1.right_stick_x;//rotation
-            boolean autoTurn=gamepad2.square;
-            if (autoTurn) {
+
+            boolean square = gamepad2.square;
+
+            if (square && !lastSquare) {
+                autoTurnEnabled = !autoTurnEnabled;
+            }
+
+            lastSquare = square;
+
+            if (autoTurnEnabled) {
                 LLResult llResult = limelight3A.getLatestResult();
 
                 if (llResult != null && llResult.isValid()) {
 
                     List<LLResultTypes.FiducialResult> fiducials =
                             llResult.getFiducialResults();
-                    telemetry.addData("rx", rx);
 
                     if (!fiducials.isEmpty()) {
 
@@ -103,6 +113,7 @@ public class teleop extends LinearOpMode {
                 }
             };
 
+            telemetry.addData("rx", rx);
 
             y = y * Math.abs(y);
             x = x * Math.abs(x);
