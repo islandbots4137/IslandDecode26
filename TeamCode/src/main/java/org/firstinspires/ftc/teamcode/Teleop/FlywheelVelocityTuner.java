@@ -57,7 +57,9 @@ public class FlywheelVelocityTuner extends OpMode {
         if (gamepad1.aWasPressed()) {
             lowVelocity = TargetVelocity;
         }
-
+        if (gamepad1.dpadUpWasPressed()) {
+            stepIndex = (stepIndex + 1) % stepSizes.length;
+        }
         // Safety clamp so you don't accidentally go negative
         if (TargetVelocity < 0) TargetVelocity = 0;
 
