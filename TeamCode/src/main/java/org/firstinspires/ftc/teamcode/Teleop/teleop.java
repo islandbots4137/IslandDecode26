@@ -18,6 +18,9 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 @TeleOp
 public class teleop extends LinearOpMode {
     private Limelight3A limelight3A;
@@ -30,11 +33,6 @@ public class teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        // Declare our motors
-
-    //    double F=12.777; // RIGHT=12.777;
-      //  double P=77.4; // RIGHT= 77.4
-       // PIDFCoefficients pidfCoefficients=new PIDFCoefficients(P,0,0,F);
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
@@ -63,28 +61,35 @@ public class teleop extends LinearOpMode {
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         ElapsedTime timer = new ElapsedTime();
+        GoBildaPinpointDriver odo;
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo.setOffsets(0.2,-6.5, DistanceUnit.INCH);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderDirections(
+                GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                GoBildaPinpointDriver.EncoderDirection.REVERSED
+        );
+        odo.resetPosAndIMU();
 
         waitForStart();
         limelight3A.start();
         limelight3A.pipelineSwitch(8);
-     //   boolean homePressed = !magHome.getState();
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-//            telemetry.addData("magHome raw", magHome.getState());
-
             double y = -gamepad1.left_stick_y; //front-back;  remember, Y stick value is reversed
             double x = gamepad1.left_stick_x; //left-right
             double rx = gamepad1.right_stick_x;//rotation
-
-            boolean square = gamepad2.square;
-
+            boolean runAutoTurn;
+/*
+            boolean square = gamepad2.squareWasPressed();
             if (square && !lastSquare) {
                 autoTurnEnabled = !autoTurnEnabled;
             }
-
             lastSquare = square;
 
+ */
+            autoTurnEnabled=gamepad2.square;
             if (autoTurnEnabled) {
                 LLResult llResult = limelight3A.getLatestResult();
 
@@ -114,6 +119,35 @@ public class teleop extends LinearOpMode {
             };
 
             telemetry.addData("rx", rx);
+
+            odo.update();
+            double headingDeg = odo.getHeading(AngleUnit.DEGREES);
+            double headingRad = Math.toRadians(headingDeg);
+            if (gamepad1.a)
+            {
+                headingSetpoint = 45;
+                runAutoTurn = true;
+            }
+            else if (gamepad1.b) {
+                headingSetpoint = 135;
+                runAutoTurn = true;
+            }
+            else {
+                runAutoTurn = false;
+            }
+            if (runAutoTurn) {
+
+                double error = headingSetpoint - Math.toDegrees(headingRad);
+
+                if (error > 180) {
+                    error -= 360;
+                } else if (error < -180) {
+                    error += 360;
+                }
+
+                rx = 0.020 * error;
+                rx = Math.min(Math.max(rx, -0.37), 0.37);
+            }
 
             y = y * Math.abs(y);
             x = x * Math.abs(x);
@@ -149,8 +183,6 @@ public class teleop extends LinearOpMode {
                 magazine.setTargetPosition(positions);
 
             }
-
-
             double lightPos = NO_TAG_POS;
             if(gamepad2.right_bumper) {
                 LLResult llResult = limelight3A.getLatestResult();
@@ -184,34 +216,6 @@ public class teleop extends LinearOpMode {
                 }
             }
             aimLight.setPosition(lightPos);
-            // PWM should be green when towards
-           /*
-            if (gamepad1.crossWasPressed()) {
-
-                autoIntake = !autoIntake;
-                spun = false;
-            }
-            // Commented out for now test how it works    spun = false;
-
-            if (autoIntake) {
-                if (detected == TestBenchColor.DetectedColor.TAN) {
-                    intake.setPower(0.8);
-                    spun = false;
-                }
-                if (detected == TestBenchColor.DetectedColor.UNKNOWN && !spun) {
-                    magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    magazine.setPower(0.3);
-                    positions = positions - 250;
-                    magazine.setTargetPosition(positions);
-                    spun = true;
-                }
-            } else {
-                intake.setPower(0);
-            }
-            */
-
-//                    intake.setPower(0);
-//                }
 
             if (gamepad2.triangleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -261,36 +265,6 @@ public class teleop extends LinearOpMode {
                 magazine.setPower(INDEX_POWER);
             }
 
-/* While indexing, stop when switch triggers
-            if (indexing) {
-                if (pressedEdge) {
-                    magazine.setPower(0);
-                    indexing = false;
-                    requireRelease = true;  // wait until magnet leaves sensor
-                } else if (indexTimer.seconds() > INDEX_TIMEOUT_S) {
-                    // failsafe if switch never triggers
-                    magazine.setPower(0);
-                    indexing = false;
-                    requireRelease = false;
-                }
-            }
-
-// Allow another index once switch is released
-            if (!pressed) {
-                requireRelease = false;
-            }
-
-            telemetry.addData("MagSwitch pressed", pressed);
-            telemetry.addData("Indexing", indexing);
-
-            if (gamepad1.dpadLeftWasPressed()) {
-
-                positions = positions + 250;
-
-                magazine.setTargetPosition(positions);
-                magazine.setPower(magazinePower);
-            }
-*/
             if (gamepad1.right_stick_button) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {

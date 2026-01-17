@@ -28,8 +28,9 @@ public final class TeleOpConstants {
 
     public static double INDEX_POWER = 0.20;
     public static double INDEX_TIMEOUT_S = 1.5;
+    public static double headingSetpoint = 0;
     // Auto Turning Constants
-    public static double TAG_TURN_kP = 0.02;   // start here
+    public static double TAG_TURN_kP = 0.03;   // start here
     public static double MAX_RX = 0.4;
     public static double TX_DEADBAND = 1.0;    // degrees
     public static double GREEN_POS = 0.5;     // aligned
