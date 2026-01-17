@@ -125,7 +125,7 @@ public class teleop extends LinearOpMode {
             double headingRad = Math.toRadians(headingDeg);
             if (gamepad2.dpad_left)
             {
-                headingSetpoint = 45;
+                headingSetpoint = 225;
                 runAutoTurn = true;
             }
             else if (gamepad2.dpad_right) {
@@ -146,7 +146,7 @@ public class teleop extends LinearOpMode {
                 }
 
                 rx = 0.020 * error;
-                rx = Math.min(Math.max(rx, -0.37), 0.37);
+                rx = Math.min(Math.max(rx, -0.4), 0.4);
             }
 
             y = y * Math.abs(y);

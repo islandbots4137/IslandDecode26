@@ -11,7 +11,6 @@ public final class TeleOpConstants {
     public static boolean ShooterRunning = false;
     //MAGAZINE CONSTANTS
 
-
     public static int positions=0;
     public static boolean spun = false;
     public static int rotationTimes = 0;
@@ -40,7 +39,7 @@ public final class TeleOpConstants {
 
     // PUSHER
     public static boolean PusherScore = false;
-    public static double servoForward=0.15;
+    public static double servoForward=0.1;
     public static double servoBack=0.6;
 
 
