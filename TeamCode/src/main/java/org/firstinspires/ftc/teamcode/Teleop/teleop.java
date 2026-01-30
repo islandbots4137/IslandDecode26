@@ -25,11 +25,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class teleop extends LinearOpMode {
     private Limelight3A limelight3A;
     boolean lastPressed = false;
+    int sequenceState = 0;
+    boolean lastDpadUp = false;
     boolean indexing = false;
+    boolean servoMoving = false;
     boolean requireRelease = false;
+    private ElapsedTime sequenceTimer = new ElapsedTime();
+
     boolean autoTurnEnabled = false;
     TouchSensor magazineLimitSwitch;  // Rev Magnetic Limit Switch
-
+    ElapsedTime servoTimer = new ElapsedTime();
     boolean lastTriangleState = false;  // For edge detection
     boolean magazineRotating = false;
     boolean lastSquare = false;   // for edge detection
@@ -88,6 +93,7 @@ public class teleop extends LinearOpMode {
             double x = gamepad1.left_stick_x; //left-right
             double rx = gamepad1.right_stick_x;//rotation
             boolean runAutoTurn;
+            boolean dpadUpPressed = gamepad1.dpad_up;
 /*
             boolean square = gamepad2.squareWasPressed();
             if (square && !lastSquare) {
@@ -205,20 +211,30 @@ public class teleop extends LinearOpMode {
                 backRightMotor.setPower(backRightPower / 3);
             }
 
-            // Automated shooting
-          /*
-            if (gamepad1.dpad_up) {
-                magazine.setPower(magazinePower);
-                positions -= 250;                      // spin to next ball
-                servo.setPosition(servoForward);
-                sleep(300);
-                servo.setPosition(servoBack);
-                sleep(400);
-                magazine.setTargetPosition(positions);
 
-            }
+           if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
+            // Start the sequence
+            magazine.setPower(magazinePower);
+            positions -= 250;
+            servo.setPosition(servoForward);
+            sequenceTimer.reset();
+            sequenceState = 1;
+        }
+        lastDpadUp = dpadUpPressed;
 
-           */
+        // State 1: Wait 300ms, then move servo back
+        if (sequenceState == 1 && sequenceTimer.milliseconds() >= 300) {
+            servo.setPosition(servoBack);
+            sequenceTimer.reset();
+            sequenceState = 2;
+        }
+
+        // State 2: Wait 400ms, then set magazine target
+        if (sequenceState == 2 && sequenceTimer.milliseconds() >= 400) {
+            magazine.setTargetPosition(positions);
+            sequenceState = 0;  // Back to idle
+        }
+
             double lightPos = NO_TAG_POS;
 
             if(gamepad2.right_bumper) {
@@ -308,11 +324,18 @@ public class teleop extends LinearOpMode {
                     shooter.setPower(0);
                 }
             }
-            if (gamepad1.circleWasPressed()) {
+            if (gamepad1.circle && !servoMoving) {
                 servo.setPosition(servoForward);
-                sleep(200);
-                servo.setPosition(servoBack);
+                servoTimer.reset();
+                servoMoving = true;
             }
+
+            // After 200ms, move servo back
+            if (servoMoving && servoTimer.milliseconds() >= 200) {
+                servo.setPosition(servoBack);
+                servoMoving = false;
+            }
+
 
             if (gamepad1.leftBumperWasPressed()) {
                 intakeReverse = !intakeReverse;
