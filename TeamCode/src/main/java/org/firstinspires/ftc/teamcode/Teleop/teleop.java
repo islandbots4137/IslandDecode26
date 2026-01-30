@@ -59,7 +59,8 @@ public class teleop extends LinearOpMode {
         ElapsedTime indexTimer = new ElapsedTime();
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         magazine.setTargetPosition(0);
         // Reverse the left side motors.
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -129,32 +130,32 @@ public class teleop extends LinearOpMode {
             telemetry.addData("rx", rx);
 
             odo.update();
-            boolean trianglePressed = gamepad1.triangle;  // Or gamepad1.y for Logitech/Xbox
-            // Detect rising edge (button just pressed)
-            if (trianglePressed && !lastTriangleState) {
-                magazineRotating = true;
-            }
-            lastTriangleState = trianglePressed;
-
-            // Rotate magazine until limit switch is triggered
-            if (magazineRotating) {
-                if (magazineLimitSwitch.isPressed()) {
-                    // Magnet detected - stop the magazine
-                    magazine.setPower(0);
-                    magazineRotating = false;
-                } else {
-                    // Keep rotating until we hit a magnet
-                    magazine.setPower(0.5);  // Adjust speed as needed
-                }
-            }
+//            boolean trianglePressed = gamepad1.triangle;  // Or gamepad1.y for Logitech/Xbox
+//            // Detect rising edge (button just pressed)
+//            if (trianglePressed && !lastTriangleState) {
+//                magazineRotating = true;
+//            }
+//            lastTriangleState = trianglePressed;
+//
+//            // Rotate magazine until limit switch is triggered
+//            if (magazineRotating) {
+//                if (magazineLimitSwitch.isPressed()) {
+//                    // Magnet detected - stop the magazine
+//                    magazine.setPower(0);
+//                    magazineRotating = false;
+//                } else {
+//                    // Keep rotating until we hit a magnet
+//                    magazine.setPower(0.5);  // Adjust speed as needed
+//                }
+//            }
 
             // --- YOUR OTHER TELEOP CODE HERE ---
             // (drive motors, other mechanisms, etc.)
 
             // Telemetry for debugging
-            telemetry.addData("Magazine Rotating", magazineRotating);
-            telemetry.addData("Limit Switch", magazineLimitSwitch.isPressed());
-            telemetry.update();
+//            telemetry.addData("Magazine Rotating", magazineRotating);
+//            telemetry.addData("Limit Switch", magazineLimitSwitch.isPressed());
+//            telemetry.update();
             double headingDeg = odo.getHeading(AngleUnit.DEGREES);
             double headingRad = Math.toRadians(headingDeg);
             if (gamepad2.dpad_left) {
@@ -205,6 +206,7 @@ public class teleop extends LinearOpMode {
             }
 
             // Automated shooting
+          /*
             if (gamepad1.dpad_up) {
                 magazine.setPower(magazinePower);
                 positions -= 250;                      // spin to next ball
@@ -215,6 +217,8 @@ public class teleop extends LinearOpMode {
                 magazine.setTargetPosition(positions);
 
             }
+
+           */
             double lightPos = NO_TAG_POS;
 
             if(gamepad2.right_bumper) {
@@ -285,7 +289,7 @@ public class teleop extends LinearOpMode {
                 }
             }
             // Just edit positions array once obtained
-/*
+
             if (gamepad1.triangleWasPressed()) {
 
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -294,7 +298,7 @@ public class teleop extends LinearOpMode {
                 magazine.setPower(magazinePower);
 
             }
-*/
+
             if (gamepad1.right_stick_button) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {

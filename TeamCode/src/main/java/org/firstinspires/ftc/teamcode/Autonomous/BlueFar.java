@@ -381,7 +381,7 @@ public class BlueFar extends LinearOpMode {
 
     // ---------------- HARDWARE HELPER FUNCTIONS (KEPT) ----------------
 
-    private void rollerOn()  { roller.setPower(-0.8); }
+    private void rollerOn()  { roller.setPower(-1); }
     private void rollerOff() { roller.setPower(0.0); }
 
     private void startShooterFast() {

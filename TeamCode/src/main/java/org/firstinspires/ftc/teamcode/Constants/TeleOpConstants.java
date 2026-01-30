@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public final class TeleOpConstants {
     //Shooter Constants
     public static final double shooterVelocity=1190;
-    public static final double shooterVelocityFar=1315;
+    public static final double shooterVelocityFar=1300;
     public static boolean ShooterRunning = false;
     //MAGAZINE CONSTANTS
 
