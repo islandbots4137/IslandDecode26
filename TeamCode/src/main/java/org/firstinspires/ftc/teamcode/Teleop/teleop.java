@@ -89,7 +89,8 @@ public class teleop extends LinearOpMode {
             lastSquare = square;
 
  */
-            autoTurnEnabled=gamepad2.square;
+            /*
+            autoTurnEnabled = gamepad2.square;
             if (autoTurnEnabled) {
                 LLResult llResult = limelight3A.getLatestResult();
 
@@ -116,23 +117,21 @@ public class teleop extends LinearOpMode {
                 } else {
                     rx = 0.0;
                 }
-            };
-
+            }
+            ;
+*/
             telemetry.addData("rx", rx);
 
             odo.update();
             double headingDeg = odo.getHeading(AngleUnit.DEGREES);
             double headingRad = Math.toRadians(headingDeg);
-            if (gamepad2.dpad_left)
-            {
+            if (gamepad2.dpad_left) {
                 headingSetpoint = 225;
                 runAutoTurn = true;
-            }
-            else if (gamepad2.dpad_right) {
+            } else if (gamepad2.dpad_right) {
                 headingSetpoint = 135;
                 runAutoTurn = true;
-            }
-            else {
+            } else {
                 runAutoTurn = false;
             }
             if (runAutoTurn) {
@@ -172,6 +171,7 @@ public class teleop extends LinearOpMode {
                 frontRightMotor.setPower(frontRightPower / 3);
                 backRightMotor.setPower(backRightPower / 3);
             }
+
             // Automated shooting
             if (gamepad1.dpad_up) {
                 magazine.setPower(magazinePower);
@@ -184,12 +184,12 @@ public class teleop extends LinearOpMode {
 
             }
             double lightPos = NO_TAG_POS;
+
             if(gamepad2.right_bumper) {
                 LLResult llResult = limelight3A.getLatestResult();
                 if (llResult != null && llResult.isValid()) {
 
-                    List<LLResultTypes.FiducialResult> fiducials =
-                            llResult.getFiducialResults();
+                    List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults();
 
                     if (fiducials != null && !fiducials.isEmpty()) {
 
@@ -217,18 +217,30 @@ public class teleop extends LinearOpMode {
             }
             aimLight.setPosition(lightPos);
 
-            if (gamepad2.triangleWasPressed()) {
+            if (gamepad1.dpadLeftWasPressed()) {
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(magazinePower);
+                positions+=250;
+                magazine.setTargetPosition(positions);
+            }
+            if (gamepad1.dpadRightWasPressed()) {
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(magazinePower);
+                positions-=250;
+                magazine.setTargetPosition(positions);
+
+            }
+            if (gamepad2.circleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
                 positions+=10;
                 magazine.setTargetPosition(positions);
             }
-            if (gamepad2.circleWasPressed()) {
+            if (gamepad2.triangleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
-                positions-=10;
+                positions -= 10;
                 magazine.setTargetPosition(positions);
-
             }
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
@@ -237,6 +249,7 @@ public class teleop extends LinearOpMode {
                     shooter2.setVelocity(shooterVelocity);
                 } else {
                     shooter.setVelocity(0);
+                    shooter2.setVelocity(0);
                 }
             }
             // Just edit positions array once obtained
@@ -285,6 +298,8 @@ public class teleop extends LinearOpMode {
             telemetry.addData("y x rx", "%.3f %.3f %.3f", y, x, rx);
             telemetry.addData("FL FR", "%.3f %.3f", frontLeftPower, frontRightPower);
             telemetry.addData("BL BR", "%.3f %.3f", backLeftPower, backRightPower);
+            telemetry.addData("light", lightPos )
+
         }
     }
 }

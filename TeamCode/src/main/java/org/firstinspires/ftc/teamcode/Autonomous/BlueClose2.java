@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -48,7 +49,8 @@ public class BlueClose2 extends LinearOpMode {
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
         feederServo.setPosition(0.6); // neutral
 
         // ---------- PATHING INIT ----------
