@@ -44,8 +44,8 @@ public class Constants {
             //After tuning all of above run tests.
             .useSecondaryTranslationalPIDF(true)
             .useSecondaryHeadingPIDF(true)
-            .forwardZeroPowerAcceleration(-37.8)
-            .lateralZeroPowerAcceleration(-43.7035)
+            .forwardZeroPowerAcceleration(-52.62)
+            .lateralZeroPowerAcceleration(-86.47)
             .useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -58,8 +58,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(250.7586)
-            .yVelocity(220.33773);
+            .xVelocity(71.75)
+            .yVelocity(47.95);
 
     //
 
