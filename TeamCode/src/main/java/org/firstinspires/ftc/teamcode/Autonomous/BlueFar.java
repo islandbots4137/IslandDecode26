@@ -320,7 +320,7 @@ public class BlueFar extends LinearOpMode {
                             new Pose(60.632, 8),
                             new Pose(60.000, 35.000)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(107), Math.toRadians(180)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(108), Math.toRadians(180)).build();
 
             Path3 = follower.pathBuilder().addPath(
                     new BezierLine(
@@ -354,7 +354,7 @@ public class BlueFar extends LinearOpMode {
                             new Pose(46.500, 35.000),
                             new Pose(64.692, 8)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(111)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(108)).build();
 
             Path8 = follower.pathBuilder().addPath(
                     new BezierLine(
@@ -375,7 +375,7 @@ public class BlueFar extends LinearOpMode {
                             new Pose(10.004, 8.051),
                             new Pose(62.011, 19.942)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(200), Math.toRadians(111)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(200), Math.toRadians(109)).build();
         }
     }
 
