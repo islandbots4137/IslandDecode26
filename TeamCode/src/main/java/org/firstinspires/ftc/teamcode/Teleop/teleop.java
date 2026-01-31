@@ -285,13 +285,13 @@ public class teleop extends LinearOpMode {
             if (gamepad2.circleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
-                positions+=10;
+                positions+=20;
                 magazine.setTargetPosition(positions);
             }
             if (gamepad2.triangleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
-                positions -= 10;
+                positions -= 20;
                 magazine.setTargetPosition(positions);
             }
             if (gamepad1.squareWasPressed()) {
