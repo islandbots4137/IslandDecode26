@@ -33,7 +33,7 @@ public class teleop extends LinearOpMode {
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
     boolean autoTurnEnabled = false;
-    TouchSensor magazineLimitSwitch;  // Rev Magnetic Limit Switch
+//    TouchSensor magazineLimitSwitch;  // Rev Magnetic Limit Switch
     ElapsedTime servoTimer = new ElapsedTime();
     boolean lastTriangleState = false;  // For edge detection
     boolean magazineRotating = false;
@@ -49,7 +49,7 @@ public class teleop extends LinearOpMode {
         DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter1");
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
-        magazineLimitSwitch = hardwareMap.get(TouchSensor.class, "magazineLimitSwitch");
+        //magazineLimitSwitch = hardwareMap.get(TouchSensor.class, "magazineLimitSwitch");
 
         //   DigitalChannel magSwitch  = hardwareMap.get(DigitalChannel.class, "magHome");
      //   magSwitch.setMode(DigitalChannel.Mode.INPUT);
@@ -354,12 +354,12 @@ public class teleop extends LinearOpMode {
                     intake.setPower(0);
                 }
             }
-            telemetry.addData("y x rx", "%.3f %.3f %.3f", y, x, rx);
-            telemetry.addData("FL FR", "%.3f %.3f", frontLeftPower, frontRightPower);
-            telemetry.addData("BL BR", "%.3f %.3f", backLeftPower, backRightPower);
-            telemetry.addData("light", lightPos );
-            telemetry.addData("Limit Switch isPressed", magazineLimitSwitch.isPressed());
-            telemetry.update();
+//            telemetry.addData("y x rx", "%.3f %.3f %.3f", y, x, rx);
+//            telemetry.addData("FL FR", "%.3f %.3f", frontLeftPower, frontRightPower);
+//            telemetry.addData("BL BR", "%.3f %.3f", backLeftPower, backRightPower);
+//            telemetry.addData("light", lightPos );
+//            telemetry.addData("Limit Switch isPressed", magazineLimitSwitch.isPressed());
+//            telemetry.update();
 
         }
     }
