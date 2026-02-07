@@ -33,7 +33,8 @@ public class teleop extends LinearOpMode {
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
     boolean autoTurnEnabled = false;
-//    TouchSensor magazineLimitSwitch;  // Rev Magnetic Limit Switch
+
+    DigitalChannel magLimitSwitch;
     ElapsedTime servoTimer = new ElapsedTime();
     boolean lastTriangleState = false;  // For edge detection
     boolean magazineRotating = false;
@@ -42,29 +43,28 @@ public class teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
+        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
         DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter1");
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
-        //magazineLimitSwitch = hardwareMap.get(TouchSensor.class, "magazineLimitSwitch");
-
-        //   DigitalChannel magSwitch  = hardwareMap.get(DigitalChannel.class, "magHome");
-     //   magSwitch.setMode(DigitalChannel.Mode.INPUT);
+        magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
+        magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.FORWARD);
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
+        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Servo servo = hardwareMap.servo.get("servo");
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         ElapsedTime indexTimer = new ElapsedTime();
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-         magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
          magazine.setTargetPosition(0);
         // Reverse the left side motors.
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -136,32 +136,7 @@ public class teleop extends LinearOpMode {
             telemetry.addData("rx", rx);
 
             odo.update();
-//            boolean trianglePressed = gamepad1.triangle;  // Or gamepad1.y for Logitech/Xbox
-//            // Detect rising edge (button just pressed)
-//            if (trianglePressed && !lastTriangleState) {
-//                magazineRotating = true;
-//            }
-//            lastTriangleState = trianglePressed;
-//
-//            // Rotate magazine until limit switch is triggered
-//            if (magazineRotating) {
-//                if (magazineLimitSwitch.isPressed()) {
-//                    // Magnet detected - stop the magazine
-//                    magazine.setPower(0);
-//                    magazineRotating = false;
-//                } else {
-//                    // Keep rotating until we hit a magnet
-//                    magazine.setPower(0.5);  // Adjust speed as needed
-//                }
-//            }
 
-            // --- YOUR OTHER TELEOP CODE HERE ---
-            // (drive motors, other mechanisms, etc.)
-
-            // Telemetry for debugging
-//            telemetry.addData("Magazine Rotating", magazineRotating);
-//            telemetry.addData("Limit Switch", magazineLimitSwitch.isPressed());
-//            telemetry.update();
             double headingDeg = odo.getHeading(AngleUnit.DEGREES);
             double headingRad = Math.toRadians(headingDeg);
             if (gamepad2.dpad_left) {
@@ -285,13 +260,13 @@ public class teleop extends LinearOpMode {
             if (gamepad2.circleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
-                positions+=10;
+                positions+=20;
                 magazine.setTargetPosition(positions);
             }
             if (gamepad2.triangleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
-                positions -= 10;
+                positions -= 20;
                 magazine.setTargetPosition(positions);
             }
             if (gamepad1.squareWasPressed()) {
@@ -305,16 +280,25 @@ public class teleop extends LinearOpMode {
                 }
             }
             // Just edit positions array once obtained
-
             if (gamepad1.triangleWasPressed()) {
+                if (!magazineRotating) {
+                    magazineRotating = true;
+                    magazine.setPower(magazinePower);
+                }
+            }
+            if (magazineRotating && !magLimitSwitch.getState()) {
+                magazine.setPower(0);
+                magazineRotating = false;
+            }
+         /*   if (gamepad1.triangleWasPressed()) {
 
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 positions = positions-250;
                 magazine.setTargetPosition(positions);
                 magazine.setPower(magazinePower);
-
             }
 
+          */
             if (gamepad1.right_stick_button) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {

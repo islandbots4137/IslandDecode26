@@ -22,7 +22,7 @@ public final class TeleOpConstants {
     public static boolean intakeOn = false;
     public static boolean intakeReverse = false;
     public static boolean autoIntake = false;
-    public static double intakeIn=-0.50;
+    public static double intakeIn=-0.80;
     public static double intakeOut=0.50;
 
     public static double INDEX_POWER = 0.20;
