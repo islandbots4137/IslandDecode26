@@ -38,7 +38,7 @@ public class Constants {
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0.0005,0.001,0.6,0.0006))
             //.secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
 
-            .centripetalScaling(0.0065) // RETUNE this
+            .centripetalScaling(0.0008) // RETUNE this
 
 
             //After tuning all of above run tests.
