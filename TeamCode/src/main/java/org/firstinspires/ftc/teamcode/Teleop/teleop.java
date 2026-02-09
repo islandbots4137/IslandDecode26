@@ -30,8 +30,11 @@ public class teleop extends LinearOpMode {
     boolean indexing = false;
     boolean servoMoving = false;
     boolean requireRelease = false;
+    boolean magazineBraking = false;
+    ElapsedTime brakeTimer = new ElapsedTime();
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
+    ElapsedTime magazineTimer = new ElapsedTime();
     boolean autoTurnEnabled = false;
 
     DigitalChannel magLimitSwitch;
@@ -279,18 +282,40 @@ public class teleop extends LinearOpMode {
                     shooter2.setVelocity(0);
                 }
             }
-            // Just edit positions array once obtained
+            boolean clearedMagnet = false;
+
             if (gamepad1.triangleWasPressed()) {
                 if (!magazineRotating) {
                     magazineRotating = true;
-                    magazine.setPower(magazinePower);
+                    magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    magazine.setPower(0.4);
+
+                    // Only need to clear if we're currently ON a magnet
+                    if (!magLimitSwitch.getState()) {
+                        clearedMagnet = false; // on a magnet, need to leave it first
+                    } else {
+                        clearedMagnet = true;  // not on a magnet, already cleared
+                        magazine.setPower(0.12); // go slow since next magnet could be close
+                    }
                 }
             }
-            if (magazineRotating && !magLimitSwitch.getState()) {
+
+// Stage 1: Leave current magnet, then slow down
+            if (magazineRotating && !clearedMagnet && magLimitSwitch.getState()) {
+                clearedMagnet = true;
+                magazine.setPower(0.12);
+            }
+
+// Stage 2: Stop at next magnet
+            if (magazineRotating && clearedMagnet && !magLimitSwitch.getState()) {
                 magazine.setPower(0);
                 magazineRotating = false;
-            }
-         /*   if (gamepad1.triangleWasPressed()) {
+            } telemetry.addData("Switch", magLimitSwitch.getState());
+            telemetry.addData("Rotating", magazineRotating);
+            telemetry.addData("Cleared", clearedMagnet);
+            telemetry.update();
+            /*   if (gamepad1.triangleWasPressed()) {
 
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 positions = positions-250;

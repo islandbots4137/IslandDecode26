@@ -16,14 +16,14 @@ public final class TeleOpConstants {
     public static int rotationTimes = 0;
     // Color Sensor Constants
     public static boolean wasTan = false;
-    public static double magazinePower= 0.35;
+    public static double magazinePower= -0.175;
 
     // Intake Constants
     public static boolean intakeOn = false;
     public static boolean intakeReverse = false;
     public static boolean autoIntake = false;
     public static double intakeIn=-0.80;
-    public static double intakeOut=0.50;
+    public static double intakeOut=0.5;
 
     public static double INDEX_POWER = 0.20;
     public static double INDEX_TIMEOUT_S = 1.5;
