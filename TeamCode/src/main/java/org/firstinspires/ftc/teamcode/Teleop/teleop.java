@@ -31,6 +31,12 @@ public class teleop extends LinearOpMode {
     boolean servoMoving = false;
     boolean requireRelease = false;
     boolean magazineBraking = false;
+    boolean magazineRotating = false;
+    boolean magazineCreeping = false;
+
+    boolean clearedMagnet = false;
+    boolean magazineAligning = false;
+
     ElapsedTime brakeTimer = new ElapsedTime();
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
@@ -40,7 +46,6 @@ public class teleop extends LinearOpMode {
     DigitalChannel magLimitSwitch;
     ElapsedTime servoTimer = new ElapsedTime();
     boolean lastTriangleState = false;  // For edge detection
-    boolean magazineRotating = false;
     boolean lastSquare = false;   // for edge detection
 
 
@@ -92,6 +97,9 @@ public class teleop extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            // Add this at the top of your loop to monitor
+            telemetry.addData("Loop time", timer.milliseconds());
+            timer.reset();
             double y = -gamepad1.left_stick_y; //front-back;  remember, Y stick value is reversed
             double x = gamepad1.left_stick_x; //left-right
             double rx = gamepad1.right_stick_x;//rotation
@@ -188,16 +196,14 @@ public class teleop extends LinearOpMode {
                 frontRightMotor.setPower(frontRightPower / 3);
                 backRightMotor.setPower(backRightPower / 3);
             }
-
-
-           if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
+            if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
             // Start the sequence
             magazine.setPower(magazinePower);
             positions -= 250;
             servo.setPosition(servoForward);
             sequenceTimer.reset();
             sequenceState = 1;
-        }
+            }
         lastDpadUp = dpadUpPressed;
 
         // State 1: Wait 300ms, then move servo back
@@ -282,39 +288,76 @@ public class teleop extends LinearOpMode {
                     shooter2.setVelocity(0);
                 }
             }
-            boolean clearedMagnet = false;
 
+       /*
             if (gamepad1.triangleWasPressed()) {
                 if (!magazineRotating) {
                     magazineRotating = true;
                     magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                     magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    magazine.setPower(0.4);
+                    magazine.setPower(-0.4);
 
                     // Only need to clear if we're currently ON a magnet
                     if (!magLimitSwitch.getState()) {
                         clearedMagnet = false; // on a magnet, need to leave it first
                     } else {
                         clearedMagnet = true;  // not on a magnet, already cleared
-                        magazine.setPower(0.12); // go slow since next magnet could be close
+                        magazine.setPower(-0.08); // go slow since next magnet could be close
                     }
                 }
             }
 
-// Stage 1: Leave current magnet, then slow down
+            // Stage 1: Leave current magnet, then slow down
             if (magazineRotating && !clearedMagnet && magLimitSwitch.getState()) {
                 clearedMagnet = true;
-                magazine.setPower(0.12);
+                magazine.setPower(-0.12);
             }
-
-// Stage 2: Stop at next magnet
+            // Stage 2: We passed the magnet — stop and start reversing
             if (magazineRotating && clearedMagnet && !magLimitSwitch.getState()) {
                 magazine.setPower(0);
                 magazineRotating = false;
-            } telemetry.addData("Switch", magLimitSwitch.getState());
+                clearedMagnet = false;
+                magazineAligning = true;
+            }
+
+// Stage 3: Creep backward until sensor detects magnet
+            if (magazineAligning && magLimitSwitch.getState()) {
+                magazine.setPower(0.06); // slow reverse, tune this value
+            }
+
+            if (magazineAligning && !magLimitSwitch.getState()) {
+                magazine.setPower(0);
+                magazineAligning = false;
+            }
+            telemetry.addData("Switch", magLimitSwitch.getState());
             telemetry.addData("Rotating", magazineRotating);
             telemetry.addData("Cleared", clearedMagnet);
             telemetry.update();
+
+        */
+            // Stage 1: Start encoder move (most of the distance)
+            if (gamepad1.triangleWasPressed() && !magazineRotating && !magazineCreeping) {
+                magazineRotating = true;
+                magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                magazine.setTargetPosition(-230); // tune this — slightly SHORT of the magnet
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(-0.35);
+            }
+
+// Stage 2: Encoder move done — switch to slow creep forward
+            if (magazineRotating && !magazine.isBusy()) {
+                magazineRotating = false;
+                magazineCreeping = true;
+                magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                magazine.setPower(-0.12); // slow forward (negative = forward), tune this
+            }
+
+// Stage 3: Sensor found — stop
+            if (magazineCreeping && !magLimitSwitch.getState()) {
+                magazine.setPower(0);
+                magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                magazineCreeping = false;
+            }
             /*   if (gamepad1.triangleWasPressed()) {
 
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -363,13 +406,6 @@ public class teleop extends LinearOpMode {
                     intake.setPower(0);
                 }
             }
-//            telemetry.addData("y x rx", "%.3f %.3f %.3f", y, x, rx);
-//            telemetry.addData("FL FR", "%.3f %.3f", frontLeftPower, frontRightPower);
-//            telemetry.addData("BL BR", "%.3f %.3f", backLeftPower, backRightPower);
-//            telemetry.addData("light", lightPos );
-//            telemetry.addData("Limit Switch isPressed", magazineLimitSwitch.isPressed());
-//            telemetry.update();
-
         }
     }
 }
