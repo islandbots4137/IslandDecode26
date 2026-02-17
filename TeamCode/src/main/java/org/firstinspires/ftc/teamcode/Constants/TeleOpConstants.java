@@ -16,7 +16,7 @@ public final class TeleOpConstants {
     public static int rotationTimes = 0;
     // Color Sensor Constants
     public static boolean wasTan = false;
-    public static double magazinePower= -0.175;
+    public static double magazinePower= -1;
 
     // Intake Constants
     public static boolean intakeOn = false;
@@ -39,8 +39,8 @@ public final class TeleOpConstants {
 
     // PUSHER
     public static boolean PusherScore = false;
-    public static double servoForward=0;
-    public static double servoBack=0.3;
+    public static double servoForward=0.0;
+    public static double servoBack=0.55;
 
 
 

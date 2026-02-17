@@ -1,28 +1,42 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.ALIGN_THRESH_DEG;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.GREEN_POS;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.NOT_READY_POS;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.NO_TAG_POS;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.ShooterRunning;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.headingSetpoint;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeIn;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeOn;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeOut;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeReverse;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.magazinePower;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.positions;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.servoBack;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.servoForward;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocity;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocityFar;
+
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import java.util.List;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.List;
+
 @TeleOp
-public class teleop extends LinearOpMode {
+public class teleop2 extends LinearOpMode {
     private Limelight3A limelight3A;
     boolean lastPressed = false;
     int sequenceState = 0;
@@ -43,7 +57,7 @@ public class teleop extends LinearOpMode {
     ElapsedTime magazineTimer = new ElapsedTime();
     boolean autoTurnEnabled = false;
 
-    DigitalChannel magLimitSwitch;
+    //DigitalChannel magLimitSwitch;
     ElapsedTime servoTimer = new ElapsedTime();
     boolean lastTriangleState = false;  // For edge detection
     boolean lastSquare = false;   // for edge detection
@@ -58,10 +72,10 @@ public class teleop extends LinearOpMode {
         DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter1");
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
-        magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
-        magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        //magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
+        //magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooter.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
@@ -73,7 +87,7 @@ public class teleop extends LinearOpMode {
         ElapsedTime indexTimer = new ElapsedTime();
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-         magazine.setTargetPosition(0);
+
         // Reverse the left side motors.
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -105,6 +119,7 @@ public class teleop extends LinearOpMode {
             double rx = gamepad1.right_stick_x;//rotation
             boolean runAutoTurn;
             boolean dpadUpPressed = gamepad1.dpad_up;
+            int serva = 0;
 /*
             boolean square = gamepad2.squareWasPressed();
             if (square && !lastSquare) {
@@ -199,7 +214,7 @@ public class teleop extends LinearOpMode {
             if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
             // Start the sequence
             magazine.setPower(magazinePower);
-            positions -= 250;
+
             servo.setPosition(servoForward);
             sequenceTimer.reset();
             sequenceState = 1;
@@ -215,7 +230,6 @@ public class teleop extends LinearOpMode {
 
         // State 2: Wait 400ms, then set magazine target
         if (sequenceState == 2 && sequenceTimer.milliseconds() >= 400) {
-            magazine.setTargetPosition(positions);
             sequenceState = 0;  // Back to idle
         }
 
@@ -254,30 +268,15 @@ public class teleop extends LinearOpMode {
             aimLight.setPosition(lightPos);
 
             if (gamepad1.dpadLeftWasPressed()) {
-                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
-                positions+=250;
-                magazine.setTargetPosition(positions);
             }
             if (gamepad1.dpadRightWasPressed()) {
-                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(magazinePower);
-                positions-=250;
-                magazine.setTargetPosition(positions);
+
+                magazine.setPower(0);
+
 
             }
-            if (gamepad2.circleWasPressed()) {
-                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(magazinePower);
-                positions+=20;
-                magazine.setTargetPosition(positions);
-            }
-            if (gamepad2.triangleWasPressed()) {
-                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(magazinePower);
-                positions -= 20;
-                magazine.setTargetPosition(positions);
-            }
+
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {
@@ -287,6 +286,16 @@ public class teleop extends LinearOpMode {
                     shooter.setVelocity(0);
                     shooter2.setVelocity(0);
                 }
+            }
+
+            if (gamepad1.dpadDownWasPressed()) {
+                    servo.setPosition(servoForward);
+                }
+            if (gamepad1.dpadUpWasPressed())  {
+                    servo.setPosition(servoBack);
+                    serva = serva + 1;
+                }
+
             }
 
        /*
@@ -336,28 +345,13 @@ public class teleop extends LinearOpMode {
 
         */
             // Stage 1: Start encoder move (most of the distance)
-            if (gamepad1.triangleWasPressed() && !magazineRotating && !magazineCreeping) {
-                magazineRotating = true;
-                magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                magazine.setTargetPosition(-230); // tune this — slightly SHORT of the magnet
-                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(-0.35);
-            }
+
 
 // Stage 2: Encoder move done — switch to slow creep forward
-            if (magazineRotating && !magazine.isBusy()) {
-                magazineRotating = false;
-                magazineCreeping = true;
-                magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                magazine.setPower(-0.12); // slow forward (negative = forward), tune this
-            }
+
 
 // Stage 3: Sensor found — stop
-            if (magazineCreeping && !magLimitSwitch.getState()) {
-                magazine.setPower(0);
-                magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                magazineCreeping = false;
-            }
+
             /*   if (gamepad1.triangleWasPressed()) {
 
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -408,5 +402,4 @@ public class teleop extends LinearOpMode {
             }
         }
     }
-}
 
