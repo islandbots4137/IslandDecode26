@@ -34,6 +34,7 @@ public class BlueFar extends LinearOpMode {
 
     // magazine indexing
     private int positions = 0;
+    boolean magazineRotating = false;
 
     // state helpers
     private ElapsedTime stateTimer = new ElapsedTime();
@@ -59,7 +60,7 @@ public class BlueFar extends LinearOpMode {
 
         // ---------- PATHING INIT ----------
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(55.125, 7.625, Math.toRadians(90)));
         paths = new Paths(follower);
 
         telemetry.addLine("READY — Press PLAY");
@@ -86,18 +87,30 @@ public class BlueFar extends LinearOpMode {
                     }
 
                     if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
+                        spinUp();     // move to next state
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 3) {
-                        feedOneBall();      // move to next state
+                        push();     // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 3.5) {
+                        spinUp();      // move to next state
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 4) {
-                        feedOneBall();
+                        push();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 4.5) {
+                        spinUp();      // move to next state
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 5) {
+                        push();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 5.5) {
                         stopShooter();
                         nextPathState();      // move to next state
                         actionStarted = false; // reset flag for next state
@@ -419,17 +432,17 @@ public class BlueFar extends LinearOpMode {
 
             Path1 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(56, 8),
+                            new Pose(55.125, 7.625),
                             new Pose(60, 15)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(113)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(111)).build();
 
             Path2 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(60, 15),
                             new Pose(48, 35.000)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(113), Math.toRadians(180)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(111), Math.toRadians(180)).build();
 
             Path3 = follower.pathBuilder().addPath(
                     new BezierLine(
@@ -551,7 +564,11 @@ public class BlueFar extends LinearOpMode {
         shooterMotor.setPower(0.0);
         shooterMotor2.setPower(0.0);
     }
-
+    private void push() {
+        feederServo.setPosition(0.1);
+        sleep(300);
+        feederServo.setPosition(0.6);
+    }
     private void feedOneBall() throws InterruptedException {
         feederServo.setPosition(0.1);
         sleep(300);
@@ -564,8 +581,10 @@ public class BlueFar extends LinearOpMode {
     }
 
     private void spinUp() throws InterruptedException {
-        magazine.setPower(0.45);
-        positions -= 250;
-        magazine.setTargetPosition(positions);
+        magazineRotating = true;
+        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        magazine.setTargetPosition(-230); // tune this — slightly SHORT of the magnet
+        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazine.setPower(-0.35);
     }
 }

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -25,7 +26,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class teleop extends LinearOpMode {
     private Limelight3A limelight3A;
     boolean lastPressed = false;
-    int sequenceState = 0;
+    private static final int SEQ_IDLE = 0;
+    private static final int SEQ_FIRING = 1;
+    private static final int SEQ_SERVO_RETRACT = 2;
+    private static final int SEQ_MAG_ENCODER = 3;
+    private static final int SEQ_MAG_CREEP = 4;
+    int seqState = SEQ_IDLE;
+    ElapsedTime seqTimer = new ElapsedTime();
+    ElapsedTime limelightTimer = new ElapsedTime();
+    boolean limelightActive = false;
     boolean lastDpadUp = false;
     boolean indexing = false;
     boolean servoMoving = false;
@@ -41,6 +50,8 @@ public class teleop extends LinearOpMode {
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
     ElapsedTime magazineTimer = new ElapsedTime();
+    private ElapsedTime loopTimer = new ElapsedTime();
+
     boolean autoTurnEnabled = false;
 
     DigitalChannel magLimitSwitch;
@@ -60,8 +71,14 @@ public class teleop extends LinearOpMode {
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
         magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
         magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients shooterPIDF = new PIDFCoefficients(10, 3, 0, 12);
+        shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.FORWARD);
+
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
@@ -89,8 +106,6 @@ public class teleop extends LinearOpMode {
                 GoBildaPinpointDriver.EncoderDirection.REVERSED
         );
         odo.resetPosAndIMU();
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
         waitForStart();
         limelight3A.start();
         limelight3A.pipelineSwitch(8);
@@ -144,7 +159,6 @@ public class teleop extends LinearOpMode {
             }
             ;
 */
-            telemetry.addData("rx", rx);
 
             odo.update();
 
@@ -196,31 +210,50 @@ public class teleop extends LinearOpMode {
                 frontRightMotor.setPower(frontRightPower / 3);
                 backRightMotor.setPower(backRightPower / 3);
             }
-            if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
-            // Start the sequence
-            magazine.setPower(magazinePower);
-            positions -= 250;
-            servo.setPosition(servoForward);
-            sequenceTimer.reset();
-            sequenceState = 1;
+            boolean shooterReady = ShooterRunning
+                    && Math.abs(shooterVelocity - shooter.getVelocity()) < 50
+                    && Math.abs(shooterVelocity - shooter2.getVelocity()) < 50;
+
+// ---- Start sequence on dpad_up ----
+            if (gamepad1.dpad_up && !lastDpadUp && seqState == SEQ_IDLE && shooterReady) {
+                // Fire the servo
+                servo.setPosition(servoForward);
+                seqTimer.reset();
+                seqState = SEQ_FIRING;
             }
-        lastDpadUp = dpadUpPressed;
+            lastDpadUp = gamepad1.dpad_up;
 
-        // State 1: Wait 300ms, then move servo back
-        if (sequenceState == 1 && sequenceTimer.milliseconds() >= 300) {
-            servo.setPosition(servoBack);
-            sequenceTimer.reset();
-            sequenceState = 2;
-        }
+// ---- State 1: Wait for ball to leave, then retract servo ----
+            if (seqState == SEQ_FIRING && seqTimer.milliseconds() >= 200) {
+                servo.setPosition(servoBack);
+                seqTimer.reset();
+                seqState = SEQ_SERVO_RETRACT;
+            }
 
-        // State 2: Wait 400ms, then set magazine target
-        if (sequenceState == 2 && sequenceTimer.milliseconds() >= 400) {
-            magazine.setTargetPosition(positions);
-            sequenceState = 0;  // Back to idle
-        }
+// ---- State 2: Servo retracted, start magazine encoder move ----
+            if (seqState == SEQ_SERVO_RETRACT && seqTimer.milliseconds() >= 300) {
+                magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                magazine.setTargetPosition(-230); // most of the way to next slot — tune this
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(0.35);
+                seqState = SEQ_MAG_ENCODER;
+            }
+
+// ---- State 3: Encoder move done, switch to slow creep ----
+            if (seqState == SEQ_MAG_ENCODER && !magazine.isBusy()) {
+                magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                magazine.setPower(-0.12); // slow creep toward magnet — tune direction & speed
+                seqState = SEQ_MAG_CREEP;
+            }
+
+// ---- State 4: Magnet found, stop and go idle ----
+            if (seqState == SEQ_MAG_CREEP && !magLimitSwitch.getState()) {
+                magazine.setPower(0);
+                magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                seqState = SEQ_IDLE;
+            }
 
             double lightPos = NO_TAG_POS;
-
             if(gamepad2.right_bumper) {
                 LLResult llResult = limelight3A.getLatestResult();
                 if (llResult != null && llResult.isValid()) {
@@ -280,13 +313,15 @@ public class teleop extends LinearOpMode {
             }
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
-                if (ShooterRunning) {
-                    shooter.setVelocity(shooterVelocity); // ? Pid to control velocity
-                    shooter2.setVelocity(shooterVelocity);
-                } else {
-                    shooter.setVelocity(0);
-                    shooter2.setVelocity(0);
-                }
+            }
+
+// Continuously command velocity every loop
+            if (ShooterRunning) {
+                shooter.setVelocity(shooterVelocity);
+                shooter2.setVelocity(shooterVelocity);
+            } else {
+                shooter.setVelocity(0);
+                shooter2.setVelocity(0);
             }
 
        /*
@@ -368,13 +403,14 @@ public class teleop extends LinearOpMode {
 
           */
             if (gamepad1.right_stick_button) {
-                ShooterRunning = !ShooterRunning;
-                if (ShooterRunning) {
-                    shooter.setVelocity(shooterVelocityFar); // ? Pid to control velocity
-                    shooter2.setVelocity(shooterVelocityFar);
-                } else {
-                    shooter.setPower(0);
-                }
+                ShooterRunningFast = !ShooterRunningFast;
+            }
+            if (ShooterRunningFast) {
+                shooter.setVelocity(shooterVelocityFar);
+                shooter2.setVelocity(shooterVelocityFar);
+            } else {
+                shooter.setVelocity(0);
+                shooter2.setVelocity(0);
             }
             if (gamepad1.circle && !servoMoving) {
                 servo.setPosition(servoForward);
@@ -406,6 +442,11 @@ public class teleop extends LinearOpMode {
                     intake.setPower(0);
                 }
             }
+            telemetry.addData("rx", rx);
+            telemetry.addData("Battery V", hardwareMap.voltageSensor.iterator().next().getVoltage());
+            telemetry.addData("Loop Time (ms)", loopTimer.milliseconds());
+            loopTimer.reset();
+            telemetry.update();
         }
     }
 }

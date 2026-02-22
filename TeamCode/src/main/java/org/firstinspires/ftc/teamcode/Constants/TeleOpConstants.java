@@ -9,6 +9,8 @@ public final class TeleOpConstants {
     public static final double shooterVelocity=1190;
     public static final double shooterVelocityFar=1300;
     public static boolean ShooterRunning = false;
+    public static boolean ShooterRunningFast = false;
+
     //MAGAZINE CONSTANTS
 
     public static int positions=0;
@@ -16,7 +18,7 @@ public final class TeleOpConstants {
     public static int rotationTimes = 0;
     // Color Sensor Constants
     public static boolean wasTan = false;
-    public static double magazinePower= -1;
+    public static double magazinePower= -0.3;
 
     // Intake Constants
     public static boolean intakeOn = false;
@@ -40,6 +42,12 @@ public final class TeleOpConstants {
     // PUSHER
     public static boolean PusherScore = false;
     public static double servoForward=0.0;
+    public static double servoPush=0;
+    public static double servoLeave=0.55;
+    public static double servoOpen=0;
+    public static double servoClose=0.35;
+
+
     public static double servoBack=0.55;
 
 

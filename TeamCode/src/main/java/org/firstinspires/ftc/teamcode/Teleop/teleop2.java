@@ -1,21 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.ALIGN_THRESH_DEG;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.GREEN_POS;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.NOT_READY_POS;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.NO_TAG_POS;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.ShooterRunning;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.headingSetpoint;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeIn;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeOn;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeOut;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.intakeReverse;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.magazinePower;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.positions;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.servoBack;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.servoForward;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocity;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocityFar;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -42,6 +27,9 @@ public class teleop2 extends LinearOpMode {
     int sequenceState = 0;
     boolean lastDpadUp = false;
     boolean indexing = false;
+    boolean pushToggleState = false;
+    boolean servoToggleState = false;
+
     boolean servoMoving = false;
     boolean requireRelease = false;
     boolean magazineBraking = false;
@@ -78,14 +66,14 @@ public class teleop2 extends LinearOpMode {
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         DcMotor magazine = hardwareMap.dcMotor.get("magazine");
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Servo servo = hardwareMap.servo.get("servo");
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Servo block = hardwareMap.servo.get("block");
 
         ElapsedTime indexTimer = new ElapsedTime();
-        magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         // Reverse the left side motors.
@@ -94,9 +82,9 @@ public class teleop2 extends LinearOpMode {
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         ElapsedTime timer = new ElapsedTime();
-        GoBildaPinpointDriver odo;  
+        GoBildaPinpointDriver odo;
         odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        odo.setOffsets(0.2,-6.5, DistanceUnit.INCH);
+        odo.setOffsets(0.2, -6.5, DistanceUnit.INCH);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(
                 GoBildaPinpointDriver.EncoderDirection.FORWARD,
@@ -212,30 +200,30 @@ public class teleop2 extends LinearOpMode {
                 backRightMotor.setPower(backRightPower / 3);
             }
             if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
-            // Start the sequence
-            magazine.setPower(magazinePower);
+                // Start the sequence
+                magazine.setPower(magazinePower);
 
-            servo.setPosition(servoForward);
-            sequenceTimer.reset();
-            sequenceState = 1;
+                servo.setPosition(servoForward);
+                sequenceTimer.reset();
+                sequenceState = 1;
             }
-        lastDpadUp = dpadUpPressed;
+            lastDpadUp = dpadUpPressed;
 
-        // State 1: Wait 300ms, then move servo back
-        if (sequenceState == 1 && sequenceTimer.milliseconds() >= 300) {
-            servo.setPosition(servoBack);
-            sequenceTimer.reset();
-            sequenceState = 2;
-        }
+            // State 1: Wait 300ms, then move servo back
+            if (sequenceState == 1 && sequenceTimer.milliseconds() >= 300) {
+                servo.setPosition(servoBack);
+                sequenceTimer.reset();
+                sequenceState = 2;
+            }
 
-        // State 2: Wait 400ms, then set magazine target
-        if (sequenceState == 2 && sequenceTimer.milliseconds() >= 400) {
-            sequenceState = 0;  // Back to idle
-        }
+            // State 2: Wait 400ms, then set magazine target
+            if (sequenceState == 2 && sequenceTimer.milliseconds() >= 400) {
+                sequenceState = 0;  // Back to idle
+            }
 
             double lightPos = NO_TAG_POS;
 
-            if(gamepad2.right_bumper) {
+            if (gamepad2.right_bumper) {
                 LLResult llResult = limelight3A.getLatestResult();
                 if (llResult != null && llResult.isValid()) {
 
@@ -267,15 +255,6 @@ public class teleop2 extends LinearOpMode {
             }
             aimLight.setPosition(lightPos);
 
-            if (gamepad1.dpadLeftWasPressed()) {
-                magazine.setPower(magazinePower);
-            }
-            if (gamepad1.dpadRightWasPressed()) {
-
-                magazine.setPower(0);
-
-
-            }
 
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
@@ -288,79 +267,7 @@ public class teleop2 extends LinearOpMode {
                 }
             }
 
-            if (gamepad1.dpadDownWasPressed()) {
-                    servo.setPosition(servoForward);
-                }
-            if (gamepad1.dpadUpWasPressed())  {
-                    servo.setPosition(servoBack);
-                    serva = serva + 1;
-                }
 
-            }
-
-       /*
-            if (gamepad1.triangleWasPressed()) {
-                if (!magazineRotating) {
-                    magazineRotating = true;
-                    magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    magazine.setPower(-0.4);
-
-                    // Only need to clear if we're currently ON a magnet
-                    if (!magLimitSwitch.getState()) {
-                        clearedMagnet = false; // on a magnet, need to leave it first
-                    } else {
-                        clearedMagnet = true;  // not on a magnet, already cleared
-                        magazine.setPower(-0.08); // go slow since next magnet could be close
-                    }
-                }
-            }
-
-            // Stage 1: Leave current magnet, then slow down
-            if (magazineRotating && !clearedMagnet && magLimitSwitch.getState()) {
-                clearedMagnet = true;
-                magazine.setPower(-0.12);
-            }
-            // Stage 2: We passed the magnet — stop and start reversing
-            if (magazineRotating && clearedMagnet && !magLimitSwitch.getState()) {
-                magazine.setPower(0);
-                magazineRotating = false;
-                clearedMagnet = false;
-                magazineAligning = true;
-            }
-
-// Stage 3: Creep backward until sensor detects magnet
-            if (magazineAligning && magLimitSwitch.getState()) {
-                magazine.setPower(0.06); // slow reverse, tune this value
-            }
-
-            if (magazineAligning && !magLimitSwitch.getState()) {
-                magazine.setPower(0);
-                magazineAligning = false;
-            }
-            telemetry.addData("Switch", magLimitSwitch.getState());
-            telemetry.addData("Rotating", magazineRotating);
-            telemetry.addData("Cleared", clearedMagnet);
-            telemetry.update();
-
-        */
-            // Stage 1: Start encoder move (most of the distance)
-
-
-// Stage 2: Encoder move done — switch to slow creep forward
-
-
-// Stage 3: Sensor found — stop
-
-            /*   if (gamepad1.triangleWasPressed()) {
-
-                magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                positions = positions-250;
-                magazine.setTargetPosition(positions);
-                magazine.setPower(magazinePower);
-            }
-
-          */
             if (gamepad1.right_stick_button) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) {
@@ -370,36 +277,38 @@ public class teleop2 extends LinearOpMode {
                     shooter.setPower(0);
                 }
             }
-            if (gamepad1.circle && !servoMoving) {
-                servo.setPosition(servoForward);
-                servoTimer.reset();
-                servoMoving = true;
+            if (gamepad1.circleWasPressed()) {
+                pushToggleState = !pushToggleState;
+                servo.setPosition(pushToggleState ? servoPush : servoLeave);
             }
-
-            // After 200ms, move servo back
-            if (servoMoving && servoTimer.milliseconds() >= 200) {
-                servo.setPosition(servoBack);
-                servoMoving = false;
+            if (gamepad1.crossWasPressed()) {
+                servoToggleState = !servoToggleState;
+                block.setPosition(servoToggleState ? servoOpen : servoClose);
             }
-
 
             if (gamepad1.leftBumperWasPressed()) {
                 intakeReverse = !intakeReverse;
                 if (intakeReverse) {
                     intake.setPower(intakeOut);
+                    magazine.setPower(-magazinePower);
                 } else {
                     intake.setPower(0);
-                }
+                    magazine.setPower(0);
 
+                }
             }
             if (gamepad1.rightBumperWasPressed()) {
                 intakeOn = !intakeOn;
                 if (intakeOn) {
                     intake.setPower(intakeIn);
+                    magazine.setPower(magazinePower);
                 } else {
                     intake.setPower(0);
+                    magazine.setPower(0);
+
                 }
             }
         }
     }
+}
 
