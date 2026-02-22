@@ -46,14 +46,5 @@ public final class TeleOpConstants {
     public static double servoLeave=0.55;
     public static double servoOpen=0;
     public static double servoClose=0.35;
-
-
     public static double servoBack=0.55;
-
-
-
-
-
-
-
 }

@@ -73,7 +73,7 @@ public class teleop extends LinearOpMode {
         magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        PIDFCoefficients shooterPIDF = new PIDFCoefficients(10, 3, 0, 12);
+        PIDFCoefficients shooterPIDF = new PIDFCoefficients(77.4, 0, 0, 12.777);
         shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -314,8 +314,6 @@ public class teleop extends LinearOpMode {
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
             }
-
-// Continuously command velocity every loop
             if (ShooterRunning) {
                 shooter.setVelocity(shooterVelocity);
                 shooter2.setVelocity(shooterVelocity);
@@ -402,7 +400,7 @@ public class teleop extends LinearOpMode {
             }
 
           */
-            if (gamepad1.right_stick_button) {
+            if (gamepad1.crossWasPressed()) {
                 ShooterRunningFast = !ShooterRunningFast;
             }
             if (ShooterRunningFast) {
