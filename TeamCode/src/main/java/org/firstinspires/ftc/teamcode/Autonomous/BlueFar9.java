@@ -4,21 +4,18 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "BlueFar (Linear Pedro)", group = "Autonomous")
-public class BlueFar extends LinearOpMode {
+public class BlueFar9 extends LinearOpMode {
 
     // ---------- PATHING ----------
     private Follower follower;
@@ -478,47 +475,13 @@ public class BlueFar extends LinearOpMode {
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(113)).build();
 
-            Path8 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(60, 15),
-                            new Pose(48, 60)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(113), Math.toRadians(180)).build();
-
-            Path9 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(48, 60),
-                            new Pose(36, 60)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180)).build();
-
-            Path10 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(36, 60),
-                            new Pose(32, 60)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180)).build();
-
-            Path11 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(32, 60),
-                            new Pose(22, 60)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180)).build();
-
-            Path12 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(22, 60.000),
-                            new Pose(60, 15)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(113)).build();
 
             Path13 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(60, 15),
                             new Pose(12, 27)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(210)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(113), Math.toRadians(210)).build();
 
             Path14 = follower.pathBuilder().addPath(
                     new BezierLine(

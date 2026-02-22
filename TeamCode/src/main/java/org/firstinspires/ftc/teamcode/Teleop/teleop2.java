@@ -300,8 +300,8 @@ public class teleop2 extends LinearOpMode {
             if (gamepad1.rightBumperWasPressed()) {
                 intakeOn = !intakeOn;
                 if (intakeOn) {
-                    intake.setPower(intakeIn);
-                    magazine.setPower(magazinePower);
+                    intake.setPower(-1);
+                    magazine.setPower(-.8);
                 } else {
                     intake.setPower(0);
                     magazine.setPower(0);
