@@ -442,6 +442,12 @@ public class teleop extends LinearOpMode {
                     intake.setPower(0);
                 }
             }
+            telemetry.addData("Target", shooterVelocity);
+            telemetry.addData("Shooter1 Vel", shooter.getVelocity());
+            telemetry.addData("Shooter2 Vel", shooter2.getVelocity());
+            telemetry.addData("Shooter1 Err", shooterVelocity - shooter.getVelocity());
+            telemetry.addData("Shooter2 Err", shooterVelocity - shooter2.getVelocity());
+
             telemetry.addData("rx", rx);
             telemetry.addData("Battery V", hardwareMap.voltageSensor.iterator().next().getVoltage());
             telemetry.addData("Loop Time (ms)", loopTimer.milliseconds());
