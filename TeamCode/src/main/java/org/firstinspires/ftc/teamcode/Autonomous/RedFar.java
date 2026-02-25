@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "RedFar (Linear Pedro)", group = "Autonomous")
+@Autonomous(name = "RedFar Defunct", group = "Autonomous")
 public class RedFar extends LinearOpMode {
 
     // ---------- PATHING ----------

@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.BezierCurve;
@@ -15,7 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "BlueClose3pickup", group = "Autonomous")
+@Autonomous(name = "Blue Close 6", group = "Autonomous")
 public class BlueClose2 extends LinearOpMode {
 
     // ---------- PATHING ----------
@@ -72,7 +71,7 @@ public class BlueClose2 extends LinearOpMode {
                 case 0:
                     // Start path once
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.line1);
+                        follower.followPath(paths.Path1);
                         startShooterSlow();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
@@ -170,53 +169,6 @@ public class BlueClose2 extends LinearOpMode {
                         actionStarted = false; // reset flag for next state
                     }
                     break;
-
-                case 6:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path7);
-                        nextPathState();
-                    }
-                    break;
-
-
-
-                case 7:
-                    if (!follower.isBusy() && !actionStarted) {
-                        startShooterSlow();   // start shooter
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
-                    }
-
-                    // After 1 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 8:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path8);
-                        nextPathState();
-
-                    }
-                    break;
             }
 
             // Telemetry
@@ -240,53 +192,78 @@ public class BlueClose2 extends LinearOpMode {
     }
 
     // ---------------- PATH CLASS ----------------
-    public static class Paths {
 
-        public PathChain line1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9;
+    public static class Paths {
+        public PathChain Path1;
+        public PathChain Path2;
+        public PathChain Path3;
+        public PathChain Path4;
+        public PathChain Path5;
+        public PathChain Path6;
 
         public Paths(Follower follower) {
+            Path1 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(25.605, 129.866),
 
-            line1 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(21, 124), new Pose(50, 102)))
-                    .setLinearHeadingInterpolation(Math.toRadians(145), Math.toRadians(143))
+                                    new Pose(54.000, 89.250)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(144), Math.toRadians(135))
+
                     .build();
 
-            Path2 = follower.pathBuilder()
-                    .addPath(new BezierCurve(new Pose(50, 102), new Pose(91, 95), new Pose(56, 82)))
-                    .setLinearHeadingInterpolation(Math.toRadians(143), Math.toRadians(180))
+            Path2 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(54.000, 89.250),
+
+                                    new Pose(41.000, 83.750)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+
                     .build();
 
-            Path3 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(56, 82), new Pose(48, 82)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+            Path3 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(41.000, 83.750),
+
+                                    new Pose(36.000, 83.750)
+                            )
+                    ).setTangentHeadingInterpolation()
+
                     .build();
 
-            Path4 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(48, 82), new Pose(42, 82)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+            Path4 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(36.000, 83.750),
+
+                                    new Pose(32.000, 83.750)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+
                     .build();
 
-            Path5 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(42, 82), new Pose(36, 82)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+            Path5 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(32.000, 83.750),
+
+                                    new Pose(24.000, 83.750)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+
                     .build();
 
-            Path6 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(36, 82), new Pose(30, 82)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
-                    .build();
+            Path6 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(24.000, 83.750),
 
-            Path7 = follower.pathBuilder() //return to shoot
-                    .addPath(new BezierCurve(new Pose(36, 82), new Pose(89, 83), new Pose(50, 102)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(145.5))
-                    .build();
-            Path8 = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(51, 102), new Pose(51, 110)))
-                    .setLinearHeadingInterpolation(Math.toRadians(145.5), Math.toRadians(145.5))
-                    .build();
+                                    new Pose(54.000, 89.250)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
 
+                    .build();
         }
     }
+
 
     // ---------------- HARDWARE HELPER FUNCTIONS ----------------
 

@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "BlueFar (Linear Pedro)", group = "Autonomous")
+@Autonomous(name = "Blue Far 12 Ball", group = "Autonomous")
 public class BlueFar12 extends LinearOpMode {
 
     // ---------- PATHING ----------

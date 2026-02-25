@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "RedClose", group = "Autonomous")
+@Autonomous(name = "Red Close 6 Defunct", group = "Autonomous")
 public class RedClose extends LinearOpMode {
 
     // ---------- PATHING ----------
