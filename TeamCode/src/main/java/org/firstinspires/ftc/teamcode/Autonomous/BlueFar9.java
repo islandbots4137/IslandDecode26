@@ -266,108 +266,13 @@ public class BlueFar9 extends LinearOpMode {
                         actionStarted = false; // reset flag for next state
                     }
                     break;
+
                 case 11:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path11);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
                         nextPathState();
-                        actionStarted = false; // reset flag for next state
                     }
-                    break;
                 case 12:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path12);
-                        nextPathState();
-                    }
-                case 13:
-                    if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
-                    }
-
-                    // After 1 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
-
-                    break;
-                case 14:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path13);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 15:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path14);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 16:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path15);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 17:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path16);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 18:
                     if (!follower.isBusy() && !actionStarted) {
                         startShooterFast();   // start shooter
                         stateTimer.reset();   // start 1-second delay
@@ -423,7 +328,7 @@ public class BlueFar9 extends LinearOpMode {
 
     // ---------------- PATH CLASS ----------------
     public static class Paths {
-        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11, Path12, Path13, Path14, Path15, Path16;
+        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11;
 
         public Paths(Follower follower) {
 
@@ -476,26 +381,26 @@ public class BlueFar9 extends LinearOpMode {
             ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(113)).build();
 
 
-            Path13 = follower.pathBuilder().addPath(
+            Path8 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(60, 15),
                             new Pose(12, 27)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(113), Math.toRadians(210)).build();
 
-            Path14 = follower.pathBuilder().addPath(
+            Path9 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(12, 17),
                             new Pose(12, 11)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(210)).build();
-            Path15 = follower.pathBuilder().addPath(
+            Path10 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(12, 11),
                             new Pose(8, 11)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(210)).build();
-            Path16 = follower.pathBuilder().addPath(
+            Path11 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(8, 11),
                             new Pose(60, 15)
