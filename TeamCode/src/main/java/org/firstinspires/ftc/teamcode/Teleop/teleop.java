@@ -367,7 +367,6 @@ public class teleop extends LinearOpMode {
             telemetry.update();
 
         */
-            // Stage 1: Start encoder move (most of the distance)
             // Stage 1: Start encoder move
             if (gamepad1.triangleWasPressed() && !magazineRotating && !magazineCreeping && !magazineUnsticking) {
                 magazineRotating = true;
