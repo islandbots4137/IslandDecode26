@@ -44,6 +44,7 @@ public class teleop extends LinearOpMode {
     boolean magazineCreeping = false;
 
     boolean clearedMagnet = false;
+    int lastMagEncoderPos = 0;
     boolean magazineAligning = false;
 
     ElapsedTime brakeTimer = new ElapsedTime();
@@ -62,6 +63,8 @@ public class teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        ShooterRunning = false;
+        ShooterRunningFast = false;
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
@@ -73,7 +76,7 @@ public class teleop extends LinearOpMode {
         magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        PIDFCoefficients shooterPIDF = new PIDFCoefficients(10, 3, 0, 12);
+        PIDFCoefficients shooterPIDF = new PIDFCoefficients(77.4, 0, 0, 12.777);
         shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -86,7 +89,8 @@ public class teleop extends LinearOpMode {
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Servo servo = hardwareMap.servo.get("servo");
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        ElapsedTime magazineStuckTimer = new ElapsedTime();
+        boolean magazineUnsticking = false;
         ElapsedTime indexTimer = new ElapsedTime();
         magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -106,6 +110,7 @@ public class teleop extends LinearOpMode {
                 GoBildaPinpointDriver.EncoderDirection.REVERSED
         );
         odo.resetPosAndIMU();
+        servo.setPosition(servoBack);   // ← initialize servo to retracted position
         waitForStart();
         limelight3A.start();
         limelight3A.pipelineSwitch(8);
@@ -210,9 +215,10 @@ public class teleop extends LinearOpMode {
                 frontRightMotor.setPower(frontRightPower / 3);
                 backRightMotor.setPower(backRightPower / 3);
             }
-            boolean shooterReady = ShooterRunning
-                    && Math.abs(shooterVelocity - shooter.getVelocity()) < 50
-                    && Math.abs(shooterVelocity - shooter2.getVelocity()) < 50;
+            double targetVel = ShooterRunningFast ? shooterVelocityFar : shooterVelocity;
+            boolean shooterReady = (ShooterRunning || ShooterRunningFast)
+                    && Math.abs(targetVel - shooter.getVelocity()) < 50
+                    && Math.abs(targetVel - shooter2.getVelocity()) < 50;
 
 // ---- Start sequence on dpad_up ----
             if (gamepad1.dpad_up && !lastDpadUp && seqState == SEQ_IDLE && shooterReady) {
@@ -224,7 +230,7 @@ public class teleop extends LinearOpMode {
             lastDpadUp = gamepad1.dpad_up;
 
 // ---- State 1: Wait for ball to leave, then retract servo ----
-            if (seqState == SEQ_FIRING && seqTimer.milliseconds() >= 200) {
+            if (seqState == SEQ_FIRING && seqTimer.milliseconds() >= 300) {
                 servo.setPosition(servoBack);
                 seqTimer.reset();
                 seqState = SEQ_SERVO_RETRACT;
@@ -233,8 +239,8 @@ public class teleop extends LinearOpMode {
 // ---- State 2: Servo retracted, start magazine encoder move ----
             if (seqState == SEQ_SERVO_RETRACT && seqTimer.milliseconds() >= 300) {
                 magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                magazine.setTargetPosition(-230); // most of the way to next slot — tune this
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setTargetPosition(-220); // most of the way to next slot — tune this
                 magazine.setPower(0.35);
                 seqState = SEQ_MAG_ENCODER;
             }
@@ -286,19 +292,21 @@ public class teleop extends LinearOpMode {
             }
             aimLight.setPosition(lightPos);
 
-            if (gamepad1.dpadLeftWasPressed()) {
+       /*
+            if (gamepad2.dpadLeftWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
                 positions+=250;
                 magazine.setTargetPosition(positions);
             }
-            if (gamepad1.dpadRightWasPressed()) {
+            if (gamepad2.dpadRightWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
                 positions-=250;
                 magazine.setTargetPosition(positions);
-
             }
+            */
+
             if (gamepad2.circleWasPressed()) {
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 magazine.setPower(magazinePower);
@@ -311,18 +319,7 @@ public class teleop extends LinearOpMode {
                 positions -= 20;
                 magazine.setTargetPosition(positions);
             }
-            if (gamepad1.squareWasPressed()) {
-                ShooterRunning = !ShooterRunning;
-            }
 
-// Continuously command velocity every loop
-            if (ShooterRunning) {
-                shooter.setVelocity(shooterVelocity);
-                shooter2.setVelocity(shooterVelocity);
-            } else {
-                shooter.setVelocity(0);
-                shooter2.setVelocity(0);
-            }
 
        /*
             if (gamepad1.triangleWasPressed()) {
@@ -370,21 +367,59 @@ public class teleop extends LinearOpMode {
             telemetry.update();
 
         */
-            // Stage 1: Start encoder move (most of the distance)
-            if (gamepad1.triangleWasPressed() && !magazineRotating && !magazineCreeping) {
+            // Stage 1: Start encoder move
+            if (gamepad1.triangleWasPressed() && !magazineRotating && !magazineCreeping && !magazineUnsticking) {
                 magazineRotating = true;
+                magazineStuckTimer.reset();
+                lastMagEncoderPos = magazine.getCurrentPosition();
                 magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                magazine.setTargetPosition(-230); // tune this — slightly SHORT of the magnet
+                magazine.setTargetPosition(-220);
                 magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                magazine.setPower(-0.35);
+                magazine.setPower(-0.4);
             }
 
-// Stage 2: Encoder move done — switch to slow creep forward
+// Stuck detection — only during fast encoder move
+            if (magazineRotating && magazineStuckTimer.milliseconds() > 500) {
+                int currentPos = magazine.getCurrentPosition();
+                if (Math.abs(currentPos - lastMagEncoderPos) < 5) {
+                    // Actually stuck — reverse to free
+                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    magazine.setPower(0.3);
+                    servo.setPosition(servoBack);
+                    magazineRotating = false;
+                    magazineUnsticking = true;
+                    magazineStuckTimer.reset();
+                } else {
+                    // Still moving — reset check
+                    lastMagEncoderPos = currentPos;
+                    magazineStuckTimer.reset();
+                }
+            }
+
+// After reversing, restart forward movement
+            if (magazineUnsticking && magazineStuckTimer.milliseconds() > 200) {
+                magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                magazine.setTargetPosition(-220);
+                magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                magazine.setPower(-0.4);
+                magazineUnsticking = false;
+                magazineRotating = true;
+                magazineStuckTimer.reset();
+                lastMagEncoderPos = magazine.getCurrentPosition();
+            }
+
+// Stage 2: Encoder move done — switch to slow creep
             if (magazineRotating && !magazine.isBusy()) {
                 magazineRotating = false;
-                magazineCreeping = true;
-                magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                magazine.setPower(-0.12); // slow forward (negative = forward), tune this
+                magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+                if (!magLimitSwitch.getState()) {
+                    magazine.setPower(0);
+                } else {
+                    magazineCreeping = true;
+                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    magazine.setPower(-0.12);
+                }
             }
 
 // Stage 3: Sensor found — stop
@@ -392,8 +427,7 @@ public class teleop extends LinearOpMode {
                 magazine.setPower(0);
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 magazineCreeping = false;
-            }
-            /*   if (gamepad1.triangleWasPressed()) {
+            }       /*   if (gamepad1.triangleWasPressed()) {
 
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 positions = positions-250;
@@ -402,24 +436,40 @@ public class teleop extends LinearOpMode {
             }
 
           */
-            if (gamepad1.right_stick_button) {
-                ShooterRunningFast = !ShooterRunningFast;
+            if (gamepad1.squareWasPressed()) {
+                ShooterRunning = !ShooterRunning;
+                if (ShooterRunning) ShooterRunningFast = false;
             }
+
+            if (gamepad1.crossWasPressed()) {
+                ShooterRunningFast = !ShooterRunningFast;
+                if (ShooterRunningFast) ShooterRunning = false;
+            }
+
+// Single unified block
             if (ShooterRunningFast) {
                 shooter.setVelocity(shooterVelocityFar);
                 shooter2.setVelocity(shooterVelocityFar);
+            } else if (ShooterRunning) {
+                shooter.setVelocity(shooterVelocity);
+                shooter2.setVelocity(shooterVelocity);
             } else {
                 shooter.setVelocity(0);
                 shooter2.setVelocity(0);
             }
-            if (gamepad1.circle && !servoMoving) {
+            if (gamepad1.circle && !servoMoving && !requireRelease) {
                 servo.setPosition(servoForward);
                 servoTimer.reset();
                 servoMoving = true;
+                requireRelease = true;
             }
 
-            // After 200ms, move servo back
-            if (servoMoving && servoTimer.milliseconds() >= 200) {
+            if (!gamepad1.circle) {
+                requireRelease = false;
+            }
+
+// After 200ms, move servo back
+            if (servoMoving && servoTimer.milliseconds() >= 300) {
                 servo.setPosition(servoBack);
                 servoMoving = false;
             }
@@ -442,12 +492,8 @@ public class teleop extends LinearOpMode {
                     intake.setPower(0);
                 }
             }
-            telemetry.addData("Target", shooterVelocity);
             telemetry.addData("Shooter1 Vel", shooter.getVelocity());
             telemetry.addData("Shooter2 Vel", shooter2.getVelocity());
-            telemetry.addData("Shooter1 Err", shooterVelocity - shooter.getVelocity());
-            telemetry.addData("Shooter2 Err", shooterVelocity - shooter2.getVelocity());
-
             telemetry.addData("rx", rx);
             telemetry.addData("Battery V", hardwareMap.voltageSensor.iterator().next().getVoltage());
             telemetry.addData("Loop Time (ms)", loopTimer.milliseconds());

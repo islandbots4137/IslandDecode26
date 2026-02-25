@@ -41,19 +41,10 @@ public final class TeleOpConstants {
 
     // PUSHER
     public static boolean PusherScore = false;
-    public static double servoForward=0.0;
+    public static double servoForward=0.83;
     public static double servoPush=0;
     public static double servoLeave=0.55;
     public static double servoOpen=0;
     public static double servoClose=0.35;
-
-
-    public static double servoBack=0.55;
-
-
-
-
-
-
-
+    public static double servoBack=0.50;
 }
