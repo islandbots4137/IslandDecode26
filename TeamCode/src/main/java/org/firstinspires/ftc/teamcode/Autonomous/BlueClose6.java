@@ -4,7 +4,6 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,7 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 
 @Autonomous(name = "Blue Close 6", group = "Autonomous")
-public class BlueClose2 extends LinearOpMode {
+public class BlueClose6 extends LinearOpMode {
 
     // ---------- PATHING ----------
     private Follower follower;
