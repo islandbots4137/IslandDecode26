@@ -258,10 +258,10 @@ public class BlueClose9 extends LinearOpMode {
                     }
                     break;
 
-                case 11:
+                case 10:
                     // Start path once
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path12);
+                        follower.followPath(paths.Path11);
                         startShooterSlow();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
@@ -291,6 +291,13 @@ public class BlueClose9 extends LinearOpMode {
                     }
                     break;
 
+                case 11:
+                    if (!follower.isBusy() && !actionStarted) {
+                        follower.followPath(paths.Path12);
+                        rollerOff();
+                        stopShooter();
+                    }
+                        break;
             }
 
             // Telemetry
