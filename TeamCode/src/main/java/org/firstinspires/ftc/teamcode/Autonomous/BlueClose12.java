@@ -71,7 +71,7 @@ public class BlueClose12 extends LinearOpMode {
         telemetry.update();
         waitForStart();
         if (isStopRequested()) return;
-
+      //AUTO LOOP
         while (opModeIsActive() && pathState != -1) {
             follower.update();
 
@@ -256,10 +256,10 @@ public class BlueClose12 extends LinearOpMode {
                     }
                     break;
 
-                case 11:
+                case 10:
                     // Start path once
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path12);
+                        follower.followPath(paths.Path11);
                         startShooterSlow();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
@@ -288,22 +288,64 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = false; // reset flag for next state
                     }
                     break;
-                case 9:
+
+                case 11:
+                    if (!follower.isBusy() && !actionStarted) {
+                        rollerOn();
+                        follower.followPath(paths.Path12);
+                        if (actionStarted && stateTimer.seconds() > 1.5) {
+                            spinUp();
+                            nextPathState();
+                            actionStarted = false; // reset flag for next state
+                        }
+                        if (actionStarted && stateTimer.seconds() > 2.5) {
+                            spinUp();
+                            nextPathState();
+                            actionStarted = false; // reset flag for next state
+                        }
+                        if (actionStarted && stateTimer.seconds() > 3.5) {
+                            spinUp();
+                            nextPathState();
+                            actionStarted = false; // reset flag for next state
+                        }
+                    }
+                    break;
+                case 12:
+                    // Start path once
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path13);
-                        rollerOn();
+                        startShooterSlow();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
-                        nextPathState();
+
+                    // After 2 second, feed the ball
+                    if (actionStarted && stateTimer.seconds() > 2) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 3) {
+                        feedOneBall();      // move to next state
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 4) {
+                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 5) {
+                        feedOneBall();
+                        actionStarted = true; // reset flag for next state
+                    }
+                    if (actionStarted && stateTimer.seconds() > 6) {
+                        stopShooter();
+                        nextPathState();      // move to next state
                         actionStarted = false; // reset flag for next state
                     }
                     break;
 
-
             }
+
+
 
             // Telemetry
             telemetry.addData("Path State", pathState);
