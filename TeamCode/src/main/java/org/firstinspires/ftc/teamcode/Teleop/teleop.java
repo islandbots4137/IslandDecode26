@@ -436,27 +436,26 @@ public class teleop extends LinearOpMode {
             }
 
           */
-            if (gamepad1.squareWasPressed()) {
-                ShooterRunning = !ShooterRunning;
-                if (ShooterRunning) ShooterRunningFast = false;
-            }
+                if (gamepad1.squareWasPressed()) {
+                    ShooterRunning = !ShooterRunning;
+                    if (ShooterRunning) ShooterRunningFast = false;
+                }
 
-            if (gamepad1.crossWasPressed()) {
-                ShooterRunningFast = !ShooterRunningFast;
-                if (ShooterRunningFast) ShooterRunning = false;
-            }
+                if (gamepad1.crossWasPressed()) {
+                    ShooterRunningFast = !ShooterRunningFast;
+                    if (ShooterRunningFast) ShooterRunning = false;
+                }
 
-// Single unified block
-            if (ShooterRunningFast) {
-                shooter.setVelocity(shooterVelocityFar);
-                shooter2.setVelocity(shooterVelocityFar);
-            } else if (ShooterRunning) {
-                shooter.setVelocity(shooterVelocity);
-                shooter2.setVelocity(shooterVelocity);
-            } else {
-                shooter.setVelocity(0);
-                shooter2.setVelocity(0);
-            }
+                if (ShooterRunningFast) {
+                    shooter.setVelocity(shooterVelocityFar);
+                    shooter2.setVelocity(shooterVelocityFar);
+                } else if (ShooterRunning) {
+                    shooter.setVelocity(shooterVelocity);
+                    shooter2.setVelocity(shooterVelocity);
+                } else {
+                    shooter.setVelocity(0);
+                    shooter2.setVelocity(0);
+                }
             if (gamepad1.circle && !servoMoving && !requireRelease) {
                 servo.setPosition(servoForward);
                 servoTimer.reset();
