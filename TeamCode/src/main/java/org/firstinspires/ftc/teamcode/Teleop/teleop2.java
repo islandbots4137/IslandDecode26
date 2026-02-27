@@ -281,6 +281,14 @@ public class teleop2 extends LinearOpMode {
                 pushToggleState = !pushToggleState;
                 servo.setPosition(pushToggleState ? servoPush : servoLeave);
             }
+            if (gamepad1.triangleWasPressed()) {
+                pushToggleState = !pushToggleState;
+                servo.setPosition(servoLeave);
+            }
+            if (gamepad1.triangleWasReleased()) {
+                pushToggleState = !pushToggleState;
+                servo.setPosition(servoPush);
+            }
             if (gamepad1.crossWasPressed()) {
                 servoToggleState = !servoToggleState;
                 block.setPosition(servoToggleState ? servoOpen : servoClose);
@@ -301,13 +309,15 @@ public class teleop2 extends LinearOpMode {
                 intakeOn = !intakeOn;
                 if (intakeOn) {
                     intake.setPower(-1);
-                    magazine.setPower(-.8);
+                    magazine.setPower(-1);
                 } else {
                     intake.setPower(0);
                     magazine.setPower(0);
 
                 }
             }
+
+
         }
     }
 }
