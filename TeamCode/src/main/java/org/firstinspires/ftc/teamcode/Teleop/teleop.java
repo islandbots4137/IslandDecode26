@@ -423,7 +423,8 @@ public class teleop extends LinearOpMode {
             }
 
 // Stage 3: Sensor found — stop
-            if (magazineCreeping && !magLimitSwitch.getState()) {
+            if (magazineCreeping && !magLimitSwitch.getState())
+            {
                 magazine.setPower(0);
                 magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 magazineCreeping = false;
@@ -436,6 +437,7 @@ public class teleop extends LinearOpMode {
             }
 
           */
+
                 if (gamepad1.squareWasPressed()) {
                     ShooterRunning = !ShooterRunning;
                     if (ShooterRunning) ShooterRunningFast = false;

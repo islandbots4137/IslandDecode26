@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -53,6 +54,9 @@ public class teleop2 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        ShooterRunning = false;
+        ShooterRunningFast = false;
+
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
@@ -60,8 +64,6 @@ public class teleop2 extends LinearOpMode {
         DcMotorEx shooter = hardwareMap.get(DcMotorEx.class, "shooter1");
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
-        //magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
-        //magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
         shooter.setDirection(DcMotorSimple.Direction.REVERSE);
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
@@ -75,8 +77,12 @@ public class teleop2 extends LinearOpMode {
 
         ElapsedTime indexTimer = new ElapsedTime();
 
+        PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
+        shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
 
         // Reverse the left side motors.
+
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -258,29 +264,25 @@ public class teleop2 extends LinearOpMode {
 
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
-                if (ShooterRunning) {
-                    shooter.setVelocity(shooterVelocity); // ? Pid to control velocity
-                    shooter2.setVelocity(shooterVelocity);
-                } else {
-                    shooter.setVelocity(0);
-                    shooter2.setVelocity(0);
-                }
+                if (ShooterRunning) ShooterRunningFast = false;
             }
 
+            if (gamepad1.crossWasPressed()) {
+                ShooterRunningFast = !ShooterRunningFast;
+                if (ShooterRunningFast) ShooterRunning = false;
+            }
 
-            if (gamepad1.right_stick_button) {
-                ShooterRunning = !ShooterRunning;
-                if (ShooterRunning) {
-                    shooter.setVelocity(shooterVelocityFar); // ? Pid to control velocity
-                    shooter2.setVelocity(shooterVelocityFar);
-                } else {
-                    shooter.setPower(0);
-                }
+            if (ShooterRunningFast) {
+                shooter.setVelocity(shooterVelocityFar);
+                shooter2.setVelocity(shooterVelocityFar);
+            } else if (ShooterRunning) {
+                shooter.setVelocity(shooterVelocity);
+                shooter2.setVelocity(shooterVelocity);
+            } else {
+                shooter.setVelocity(0);
+                shooter2.setVelocity(0);
             }
-            if (gamepad1.circleWasPressed()) {
-                pushToggleState = !pushToggleState;
-                servo.setPosition(pushToggleState ? servoPush : servoLeave);
-            }
+
             if (gamepad1.triangleWasPressed()) {
                 pushToggleState = !pushToggleState;
                 servo.setPosition(servoLeave);
@@ -289,11 +291,6 @@ public class teleop2 extends LinearOpMode {
                 pushToggleState = !pushToggleState;
                 servo.setPosition(servoPush);
             }
-            if (gamepad1.crossWasPressed()) {
-                servoToggleState = !servoToggleState;
-                block.setPosition(servoToggleState ? servoOpen : servoClose);
-            }
-
             if (gamepad1.leftBumperWasPressed()) {
                 intakeReverse = !intakeReverse;
                 if (intakeReverse) {
