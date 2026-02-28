@@ -14,8 +14,8 @@ public class FlywheelVelocityTuner extends OpMode {
     public DcMotorEx FlywheelMotor2;
 
     // Presets you can save/toggle between
-    public double highVelocity = 1350;
-    public double lowVelocity  = 1250;
+    public double highVelocity = 940;
+    public double lowVelocity  = 890;
 
     // What we are currently commanding
     public double TargetVelocity = highVelocity;
