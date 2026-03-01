@@ -1,4 +1,6 @@
+/*
 package org.firstinspires.ftc.teamcode.Autonomous;
+
 
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.magazineVelocity;
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocity;
@@ -394,3 +396,4 @@ public class BlueFar12 extends LinearOpMode {
     }
 
 }
+*/

@@ -69,7 +69,7 @@ public class teleop2 extends LinearOpMode {
         DcMotorEx shooter2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         Servo aimLight = hardwareMap.get(Servo.class, "aimLight");
         shooter2.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setDirection(DcMotorSimple.Direction.FORWARD);
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -135,7 +135,37 @@ public class teleop2 extends LinearOpMode {
             lastDpadDownG2 = gamepad2.dpad_down;
 
 
+            int targetId = 5; // change to whatever tag ID you want
 
+            LLResult llResult = limelight3A.getLatestResult();
+            if (llResult != null && llResult.isValid()) {
+                List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults();
+
+                LLResultTypes.FiducialResult target = null;
+                if (fiducials != null) {
+                    for (LLResultTypes.FiducialResult f : fiducials) {
+                        if (f.getFiducialId() == targetId) {
+                            target = f;
+                            break;
+                        }
+                    }
+                }
+
+                if (target != null) {
+                    double tx = target.getTargetPoseCameraSpace().getPosition().x;
+                    double ty = target.getTargetPoseCameraSpace().getPosition().y;
+                    double tz = target.getTargetPoseCameraSpace().getPosition().z;
+
+                    double distanceInches = Math.sqrt(tx * tx + ty * ty + tz * tz) * 39.3701;
+
+                    telemetry.addData("Tag ID", target.getFiducialId());
+                    telemetry.addData("Distance (in)", "%.1f", distanceInches);
+                } else {
+                    telemetry.addData("Tag " + targetId, "Not found");
+                }
+            } else {
+                telemetry.addData("Limelight", "No result");
+            }
 /*
             boolean square = gamepad2.squareWasPressed();
             if (square && !lastSquare) {
@@ -228,7 +258,7 @@ public class teleop2 extends LinearOpMode {
                 backRightMotor.setPower(backRightPower / 3);
             }
 
-            double lightPos = NO_TAG_POS;
+       /*     double lightPos = NO_TAG_POS;
 
             if (gamepad2.right_bumper) {
                 LLResult llResult = limelight3A.getLatestResult();
@@ -260,7 +290,9 @@ public class teleop2 extends LinearOpMode {
                     }
                 }
             }
-            aimLight.setPosition(lightPos);
+
+        */
+          //  aimLight.setPosition(lightPos);
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) ShooterRunningFast = false;
