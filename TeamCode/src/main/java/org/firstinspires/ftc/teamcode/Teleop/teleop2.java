@@ -76,10 +76,10 @@ public class teleop2 extends LinearOpMode {
         DcMotorEx magazine = hardwareMap.get(DcMotorEx.class, "magazine");
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        PIDFCoefficients magazinePIDF = new PIDFCoefficients(10.0, 0, 0, 12.0);
-        magazine.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, magazinePIDF);
+     //   PIDFCoefficients magazinePIDF =
+   //     magazine.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, magazinePIDF);
         Servo servo = hardwareMap.servo.get("servo");
-
+        servo.setPosition(servoClose);
         PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
         shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         shooter2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
@@ -272,8 +272,8 @@ public class teleop2 extends LinearOpMode {
             }
 
             if (ShooterRunningFast) {
-                shooter.setVelocity(-shooterVelocityFar);
-                shooter2.setVelocity(-shooterVelocityFar);
+                shooter.setVelocity(shooterVelocityFar);
+                shooter2.setVelocity(shooterVelocityFar);
             } else if (ShooterRunning) {
                 shooter.setVelocity(shooterVelocity);
                 shooter2.setVelocity(shooterVelocity);
@@ -281,20 +281,19 @@ public class teleop2 extends LinearOpMode {
                 shooter.setVelocity(0);
                 shooter2.setVelocity(0);
             }
-
             if (gamepad1.triangleWasPressed()) {
                 pushToggleState = !pushToggleState;
-                servo.setPosition(servoLeave);
+                servo.setPosition(0.72);
             }
             if (gamepad1.triangleWasReleased()) {
                 pushToggleState = !pushToggleState;
-                servo.setPosition(servoPush);
+                servo.setPosition(0.16);
             }
             if (gamepad1.leftBumperWasPressed()) {
                 intakeReverse = !intakeReverse;
                 if (intakeReverse) {
                     intake.setPower(intakeOut);
-                    magazine.setVelocity(-magazineVeloicty);
+                    magazine.setVelocity(-magazineVelocity);
                 } else {
                     intake.setPower(0);
                     magazine.setVelocity(0);
@@ -305,7 +304,7 @@ public class teleop2 extends LinearOpMode {
                 intakeOn = !intakeOn;
                 if (intakeOn) {
                     intake.setPower(-1);
-                    magazine.setVelocity(magazineVeloicty);
+                    magazine.setVelocity(magazineVelocity);
                 } else {
                     intake.setPower(0);
                     magazine.setPower(0);

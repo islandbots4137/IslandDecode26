@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -44,8 +45,8 @@ public class BlueClose12 extends LinearOpMode {
         // ---------------- HARDWARE MAP ----------------
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter1");
         shooterMotor2=hardwareMap.get(DcMotorEx.class,"shooter2");
-        magazine     = hardwareMap.get(DcMotorEx.class, "magazine");
-        roller       = hardwareMap.get(DcMotor.class, "intake");
+        magazine = hardwareMap.get(DcMotorEx.class, "magazine");
+        roller = hardwareMap.get(DcMotor.class, "intake");
         servo  = hardwareMap.get(Servo.class, "servo");
 
         magazine.setTargetPosition(0);
@@ -57,7 +58,7 @@ public class BlueClose12 extends LinearOpMode {
         shooterMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
         magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
         magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
-
+        servo.setPosition(0.445);
         shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
         servo.setPosition(servoBack); // neutral
@@ -81,33 +82,11 @@ public class BlueClose12 extends LinearOpMode {
                     // Start path once
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path1);
-                        startShooterSlow();   // start shooter
+                        startShooter();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
 
-                    // After 2 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
                     break;
 
 
@@ -119,7 +98,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -134,7 +112,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -149,7 +126,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -163,7 +139,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -171,7 +146,6 @@ public class BlueClose12 extends LinearOpMode {
 
                 case 5:
                     if (!follower.isBusy() && !actionStarted) {
-                        startShooterSlow();
                         follower.followPath(paths.Path6);
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
@@ -179,19 +153,15 @@ public class BlueClose12 extends LinearOpMode {
                     }
                     // After 2 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 1) {
-                        feedOneBall();      // move to next state
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 2) {
-                        feedOneBall();      // move to next state
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 3) {
-                        feedOneBall();
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 4) {
-                        feedOneBall();
                         actionStarted = true; // reset flag for next state
                     }
                     if (actionStarted && stateTimer.seconds() > 5) {
@@ -208,7 +178,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -222,7 +191,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -236,7 +204,6 @@ public class BlueClose12 extends LinearOpMode {
                         actionStarted = true; // mark that action has started
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -270,6 +237,7 @@ public class BlueClose12 extends LinearOpMode {
 
 
 
+
     public static class Paths {
         public PathChain Path1;
         public PathChain Path2;
@@ -280,6 +248,7 @@ public class BlueClose12 extends LinearOpMode {
         public PathChain Path7;
         public PathChain Path8;
         public PathChain Path9;
+        public PathChain Path10;
 
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
@@ -295,36 +264,46 @@ public class BlueClose12 extends LinearOpMode {
             Path2 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(54.000, 89.250),
-                                    new Pose(36.000, 82.500),
-                                    new Pose(26.000, 83.750)
+                                    new Pose(51.110, 82.318),
+                                    new Pose(41.656, 83.750)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
 
                     .build();
 
             Path3 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(41.656, 83.750),
+
+                                    new Pose(19.155, 83.750)
+                            )
+                    ).setTangentHeadingInterpolation()
+
+                    .build();
+
+            Path4 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(26.000, 83.750),
-                                    new Pose(45.556, 83.218),
+                                    new Pose(19.155, 83.750),
+                                    new Pose(52.110, 83.582),
                                     new Pose(54.000, 89.250)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
 
                     .build();
 
-            Path4 = follower.pathBuilder().addPath(
+            Path5 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(54.000, 89.250),
                                     new Pose(47.217, 65.797),
-                                    new Pose(41.364, 59.800)
+                                    new Pose(42.456, 59.982)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
 
                     .build();
 
-            Path5 = follower.pathBuilder().addPath(
+            Path6 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(41.364, 59.800),
+                                    new Pose(42.456, 59.982),
 
                                     new Pose(20.000, 59.800)
                             )
@@ -332,7 +311,7 @@ public class BlueClose12 extends LinearOpMode {
 
                     .build();
 
-            Path6 = follower.pathBuilder().addPath(
+            Path7 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(20.000, 59.800),
                                     new Pose(47.095, 70.792),
@@ -342,7 +321,7 @@ public class BlueClose12 extends LinearOpMode {
 
                     .build();
 
-            Path7 = follower.pathBuilder().addPath(
+            Path8 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(54.000, 89.250),
                                     new Pose(47.119, 62.615),
@@ -352,7 +331,7 @@ public class BlueClose12 extends LinearOpMode {
 
                     .build();
 
-            Path8 = follower.pathBuilder().addPath(
+            Path9 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     new Pose(11.300, 60.000),
                                     new Pose(45.148, 64.991),
@@ -362,11 +341,11 @@ public class BlueClose12 extends LinearOpMode {
 
                     .build();
 
-            Path9 = follower.pathBuilder().addPath(
+            Path10 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(54.000, 89.250),
 
-                                    new Pose(31.025, 94.144)
+                                    new Pose(61.427, 96.147)
                             )
                     ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(225))
 
@@ -374,96 +353,52 @@ public class BlueClose12 extends LinearOpMode {
         }
     }
 
-
-
-
     // ---------------- HARDWARE HELPER FUNCTIONS ----------------
 
-    public void rollerOn() { roller.setPower(-0.8); }
-    public void rollerOff() { roller.setPower(0.0); }
+    public void rollerOn() {
+        roller.setPower(-1);
+        magazine.setVelocity(magazineVelocity);
+    }
+    public void rollerOff() {
+        roller.setPower(0.0);
+        magazine.setVelocity(magazineVelocity);
+    }
 
-    public void startShooterFast() { shooterMotor.setVelocity(1290); }
-    public void startShooterSlow() {
-        shooterMotor.setVelocity(1200);
-        shooterMotor2.setVelocity(1200);}
+    public void startShooter() {
+        shooterMotor.setVelocity(shooterVelocity);
+        shooterMotor2.setVelocity(shooterVelocity);
+    }
+
+    public void startShooterFar() {
+        shooterMotor.setVelocity(shooterVelocityFar);
+        shooterMotor2.setVelocity(shooterVelocityFar);
+    }
+
     public void stopShooter() {
         shooterMotor.setVelocity(0);
         shooterMotor2.setVelocity(0);
     }
-    public void feedOneBall() {
-        // Fire servo
-        servo.setPosition(servoForward);
+    public void shotSequence() {
+        // Drop servo to let balls through
+        servo.setPosition(0);
+        sleep(1500);
+
+        // Reverse roller and magazine briefly to clear any jams
+        roller.setPower(0.5);
+        magazine.setVelocity(-magazineVelocity);
         sleep(300);
-        // Retract servo
-        servo.setPosition(servoBack);
-        sleep(300);
 
-        // Fast encoder move toward next slot
-        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setTargetPosition(-220);
-        magazine.setPower(0.35);
-
-        while (opModeIsActive() && magazine.isBusy()) {
-            // wait for encoder move to finish
-        }
-
-        // Slow creep until magnet found
-        magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        magazine.setPower(-0.12);
-
-        while (opModeIsActive() && magLimitSwitch.getState()) {
-            // wait for magnet
-        }
-
-        magazine.setPower(0);
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // Spin forward to shoot
+        roller.setPower(-1);
+        servo.setPosition(0.445);
+        sleep(200);
+        servo.setPosition(0);
+        magazine.setVelocity(magazineVelocity);
+        sleep(1000);
+        // Stop everything
+        servo.setPosition(0.445);
     }
-    private void spinUp() {
-        // Fast encoder move
-        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setTargetPosition(-220);
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setPower(-0.4);
 
-        ElapsedTime stuckTimer = new ElapsedTime();
-        int lastPos = magazine.getCurrentPosition();
-
-        // Wait for encoder move, with stuck detection
-        while (opModeIsActive() && magazine.isBusy()) {
-            if (stuckTimer.milliseconds() > 500) {
-                int currentPos = magazine.getCurrentPosition();
-                if (Math.abs(currentPos - lastPos) < 5) {
-                    // Stuck — reverse to free
-                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    magazine.setPower(0.3);
-                    servo.setPosition(servoBack);
-                    sleep(200);
-
-                    // Restart forward move
-                    magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    magazine.setTargetPosition(-220);
-                    magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    magazine.setPower(-0.4);
-                }
-                lastPos = magazine.getCurrentPosition();
-                stuckTimer.reset();
-            }
-            idle();
-        }
-
-        // Slow creep until magnet found
-        if (magLimitSwitch.getState()) {
-            magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            magazine.setPower(-0.12);
-
-            while (opModeIsActive() && magLimitSwitch.getState()) {
-                idle();
-            }
-        }
-
-        magazine.setPower(0);
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
 }
+
 
