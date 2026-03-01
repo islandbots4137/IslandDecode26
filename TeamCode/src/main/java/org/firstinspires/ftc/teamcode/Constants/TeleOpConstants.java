@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public final class TeleOpConstants {
     //Shooter Constants
     public static double shooterVelocity=1240;
-    public static double shooterVelocityFar=1350;
+    public static double shooterVelocityFar=1400;
     public static boolean ShooterRunning = false;
     public static boolean ShooterRunningFast = false;
 
@@ -36,10 +36,10 @@ public final class TeleOpConstants {
     public static double TAG_TURN_kP = 0.03;   // start here
     public static double MAX_RX = 0.4;
     public static double TX_DEADBAND = 1.0;    // degrees
-    public static double GREEN_POS = 0.5;     // aligned
-    public static double NOT_READY_POS = 1; // not aligned
-    public static double NO_TAG_POS = 0.10;    // no tag
-    public static double ALIGN_THRESH_DEG = 5.0;
+    public static double GREEN_POS = 0.417;     // aligned
+    public static double NOT_READY_POS = 0.333; // not aligned
+    public static double NO_TAG_POS = 0.25;    // no tag
+    public static double ALIGN_THRESH_DEG = 3.0;
 
     // PUSHER
     public static boolean PusherScore = false;

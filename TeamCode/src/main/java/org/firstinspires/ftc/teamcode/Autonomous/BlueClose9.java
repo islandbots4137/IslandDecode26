@@ -353,17 +353,6 @@ public class BlueClose9 extends LinearOpMode {
         }
         magazine.setVelocity(magazineVelocity);
     }
-    private void setDrive(double power) {
-        frontLeftMotor.setPower(power);
-        backLeftMotor.setPower(power);
-        backLeftMotor.setPower(power);
-        frontRightMotor.setPower(power);
-        backRightMotor.setPower(power);
-    }
-
-    private void stopDrive() {
-        setDrive(0);
-    }
 
     }
 

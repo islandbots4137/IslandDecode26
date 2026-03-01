@@ -44,7 +44,7 @@ public class teleop2 extends LinearOpMode {
 
     boolean clearedMagnet = false;
     boolean magazineAligning = false;
-
+    double autoShooterVelocity = shooterVelocity;
     ElapsedTime brakeTimer = new ElapsedTime();
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
@@ -76,8 +76,8 @@ public class teleop2 extends LinearOpMode {
         DcMotorEx magazine = hardwareMap.get(DcMotorEx.class, "magazine");
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-     //   PIDFCoefficients magazinePIDF =
-   //     magazine.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, magazinePIDF);
+        //   PIDFCoefficients magazinePIDF =
+        //     magazine.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, magazinePIDF);
         Servo servo = hardwareMap.servo.get("servo");
         servo.setPosition(servoClose);
         PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
@@ -108,6 +108,7 @@ public class teleop2 extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            LLResult llResult = limelight3A.getLatestResult();
             // Add this at the top of your loop to monitor
             telemetry.addData("Loop time", timer.milliseconds());
             timer.reset();
@@ -115,7 +116,8 @@ public class teleop2 extends LinearOpMode {
             double x = gamepad1.left_stick_x; //left-right
             double rx = gamepad1.right_stick_x;//rotation
             boolean runAutoTurn;
-            if (gamepad2.cross && !lastCrossG2) {
+
+         /*   if (gamepad2.cross && !lastCrossG2) {
                 stepIndex = (stepIndex + 1) % stepSizes.length;
             }
             lastCrossG2 = gamepad2.cross;
@@ -134,14 +136,15 @@ public class teleop2 extends LinearOpMode {
             lastDpadUpG2 = gamepad2.dpad_up;
             lastDpadDownG2 = gamepad2.dpad_down;
 
-
-            int targetId = 5; // change to whatever tag ID you want
-
-            LLResult llResult = limelight3A.getLatestResult();
+*/
+            int targetId = 20; // change to whatever tag ID you want
+            LLResultTypes.FiducialResult target = null;
+            List<LLResultTypes.FiducialResult> fiducials = null;
+            double distanceInches = 0;
+            boolean tagVisible = false;
             if (llResult != null && llResult.isValid()) {
-                List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults();
+                fiducials = llResult.getFiducialResults();
 
-                LLResultTypes.FiducialResult target = null;
                 if (fiducials != null) {
                     for (LLResultTypes.FiducialResult f : fiducials) {
                         if (f.getFiducialId() == targetId) {
@@ -156,143 +159,75 @@ public class teleop2 extends LinearOpMode {
                     double ty = target.getTargetPoseCameraSpace().getPosition().y;
                     double tz = target.getTargetPoseCameraSpace().getPosition().z;
 
-                    double distanceInches = Math.sqrt(tx * tx + ty * ty + tz * tz) * 39.3701;
+                    distanceInches = Math.sqrt(tx * tx + ty * ty + tz * tz) * 39.3701;
+                    autoShooterVelocity = getShooterVelocity(distanceInches);  // ← ADD THIS
+                    tagVisible = true;                                          // ← ADD THIS
 
                     telemetry.addData("Tag ID", target.getFiducialId());
                     telemetry.addData("Distance (in)", "%.1f", distanceInches);
-                } else {
-                    telemetry.addData("Tag " + targetId, "Not found");
-                }
-            } else {
+                }                }
+            else {
+                telemetry.addData("Tag " + targetId, "Not found");
                 telemetry.addData("Limelight", "No result");
             }
-/*
-            boolean square = gamepad2.squareWasPressed();
-            if (square && !lastSquare) {
-                autoTurnEnabled = !autoTurnEnabled;
-            }
-            lastSquare = square;
 
- */
-            /*
-            autoTurnEnabled = gamepad2.square;
-            if (autoTurnEnabled) {
-                LLResult llResult = limelight3A.getLatestResult();
+                y = y * Math.abs(y);
+                x = x * Math.abs(x);
+                // Denominator is the largest motor power (absolute value) or 1
+                // This ensures all the powers maintain the same ratio,
+                // but only if at least one is out of the range [-1, 1]
+                double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+                double frontLeftPower = (y + x + rx) / denominator;
+                double backLeftPower = (y - x + rx) / denominator;
+                double frontRightPower = (y - x - rx) / denominator;
+                double backRightPower = (y + x - rx) / denominator;
 
-                if (llResult != null && llResult.isValid()) {
 
-                    List<LLResultTypes.FiducialResult> fiducials =
-                            llResult.getFiducialResults();
-
-                    if (!fiducials.isEmpty()) {
-
-                        // pick first tag (or filter by ID)
-                        LLResultTypes.FiducialResult tag = fiducials.get(0);
-
-                        double tx = tag.getTargetXDegrees(); // left/right angle to tag
-                        if (Math.abs(tx) > TX_DEADBAND) {
-                            rx = tx * TAG_TURN_kP;
-                            rx = Math.max(-MAX_RX, Math.min(MAX_RX, rx));
-                        } else {
-                            rx = 0.0; // already aligned
-                        }
-                    } else {
-                        rx = 0.0; // no tag → don’t spin
-                    }
+                if (gamepad1.left_trigger > 0 || gamepad1.right_trigger > 0) {
+                    frontLeftMotor.setPower(frontLeftPower);
+                    backLeftMotor.setPower(backLeftPower);
+                    frontRightMotor.setPower(frontRightPower);
+                    backRightMotor.setPower(backRightPower);
                 } else {
-                    rx = 0.0;
-                }
-            }
-            ;
-*/
-            telemetry.addData("rx", rx);
-
-            odo.update();
-
-            double headingDeg = odo.getHeading(AngleUnit.DEGREES);
-            double headingRad = Math.toRadians(headingDeg);
-            if (gamepad2.dpad_left) {
-                headingSetpoint = 225;
-                runAutoTurn = true;
-            } else if (gamepad2.dpad_right) {
-                headingSetpoint = 135;
-                runAutoTurn = true;
-            } else {
-                runAutoTurn = false;
-            }
-            if (runAutoTurn) {
-
-                double error = headingSetpoint - Math.toDegrees(headingRad);
-
-                if (error > 180) {
-                    error -= 360;
-                } else if (error < -180) {
-                    error += 360;
+                    frontLeftMotor.setPower(frontLeftPower / 3);
+                    backLeftMotor.setPower(backLeftPower / 3);
+                    frontRightMotor.setPower(frontRightPower / 3);
+                    backRightMotor.setPower(backRightPower / 3);
                 }
 
-                rx = 0.020 * error;
-                rx = Math.min(Math.max(rx, -0.4), 0.4);
-            }
+                double lightPos = NO_TAG_POS;
 
-            y = y * Math.abs(y);
-            x = x * Math.abs(x);
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio,
-            // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+                if (gamepad2.right_bumper) {
+                    if (llResult != null && llResult.isValid()) {
+                        fiducials = llResult.getFiducialResults();
+                        if (fiducials != null && !fiducials.isEmpty()) {
 
+                            // pick tag closest to center
+                            LLResultTypes.FiducialResult best = fiducials.get(0);
+                            double bestAbsTx = Math.abs(best.getTargetXDegrees());
 
-            if (gamepad1.left_trigger > 0 || gamepad1.right_trigger > 0) {
-                frontLeftMotor.setPower(frontLeftPower);
-                backLeftMotor.setPower(backLeftPower);
-                frontRightMotor.setPower(frontRightPower);
-                backRightMotor.setPower(backRightPower);
-            } else {
-                frontLeftMotor.setPower(frontLeftPower / 3);
-                backLeftMotor.setPower(backLeftPower / 3);
-                frontRightMotor.setPower(frontRightPower / 3);
-                backRightMotor.setPower(backRightPower / 3);
-            }
+                            for (LLResultTypes.FiducialResult f : fiducials) {
+                                double absTx = Math.abs(f.getTargetXDegrees());
+                                if (absTx < bestAbsTx) {
+                                    bestAbsTx = absTx;
+                                    best = f;
+                                }
+                            }
 
-       /*     double lightPos = NO_TAG_POS;
+                            double tx = best.getTargetXDegrees();
 
-            if (gamepad2.right_bumper) {
-                LLResult llResult = limelight3A.getLatestResult();
-                if (llResult != null && llResult.isValid()) {
-
-                    List<LLResultTypes.FiducialResult> fiducials = llResult.getFiducialResults();
-
-                    if (fiducials != null && !fiducials.isEmpty()) {
-
-                        // pick tag closest to center
-                        LLResultTypes.FiducialResult best = fiducials.get(0);
-                        double bestAbsTx = Math.abs(best.getTargetXDegrees());
-
-                        for (LLResultTypes.FiducialResult f : fiducials) {
-                            double absTx = Math.abs(f.getTargetXDegrees());
-                            if (absTx < bestAbsTx) {
-                                bestAbsTx = absTx;
-                                best = f;
+                            if (Math.abs(tx) <= ALIGN_THRESH_DEG) {
+                                lightPos = GREEN_POS;       // aligned
+                            } else {
+                                lightPos = NOT_READY_POS;   // not aligned
                             }
                         }
-
-                        double tx = best.getTargetXDegrees();
-
-                        if (Math.abs(tx) <= ALIGN_THRESH_DEG) {
-                            lightPos = GREEN_POS;       // aligned
-                        } else {
-                            lightPos = NOT_READY_POS;   // not aligned
-                        }
                     }
                 }
-            }
 
-        */
-          //  aimLight.setPosition(lightPos);
+
+                aimLight.setPosition(lightPos);
+         /*
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) ShooterRunningFast = false;
@@ -313,42 +248,94 @@ public class teleop2 extends LinearOpMode {
                 shooter.setVelocity(0);
                 shooter2.setVelocity(0);
             }
-            if (gamepad1.triangleWasPressed()) {
-                pushToggleState = !pushToggleState;
-                servo.setPosition(0.72);
-            }
-            if (gamepad1.triangleWasReleased()) {
-                pushToggleState = !pushToggleState;
-                servo.setPosition(0.16);
-            }
-            if (gamepad1.leftBumperWasPressed()) {
-                intakeReverse = !intakeReverse;
-                if (intakeReverse) {
-                    intake.setPower(intakeOut);
-                    magazine.setVelocity(-magazineVelocity);
-                } else {
-                    intake.setPower(0);
-                    magazine.setVelocity(0);
+            */
+                // Update auto velocity if tag is visible
 
+// Shooter toggles
+                if (gamepad1.squareWasPressed()) {
+                    ShooterRunning = !ShooterRunning;
+                    if (ShooterRunning) ShooterRunningFast = false;
+                }
+                if (gamepad1.crossWasPressed()) {
+                    ShooterRunningFast = !ShooterRunningFast;
+                    if (ShooterRunningFast) ShooterRunning = false;
+                }
+
+// Apply velocity — auto if tag visible, manual defaults if not
+                if (ShooterRunningFast) {
+                    double vel = tagVisible ? autoShooterVelocity : shooterVelocityFar;
+                    shooter.setVelocity(vel);
+                    shooter2.setVelocity(vel);
+                } else if (ShooterRunning) {
+                    double vel = tagVisible ? autoShooterVelocity : shooterVelocity;
+                    shooter.setVelocity(vel);
+                    shooter2.setVelocity(vel);
+                } else {
+                    shooter.setVelocity(0);
+                    shooter2.setVelocity(0);
+                }
+
+                if (gamepad1.triangleWasPressed()) {
+                    pushToggleState = !pushToggleState;
+                    servo.setPosition(0.72);
+                }
+                if (gamepad1.triangleWasReleased()) {
+                    pushToggleState = !pushToggleState;
+                    servo.setPosition(0.16);
+                }
+                if (gamepad1.leftBumperWasPressed()) {
+                    intakeReverse = !intakeReverse;
+                    if (intakeReverse) {
+                        intake.setPower(intakeOut);
+                        magazine.setVelocity(-magazineVelocity);
+                    } else {
+                        intake.setPower(0);
+                        magazine.setVelocity(0);
+
+                    }
+                }
+                if (gamepad1.rightBumperWasPressed()) {
+                    intakeOn = !intakeOn;
+                    if (intakeOn) {
+                        intake.setPower(-1);
+                        magazine.setVelocity(magazineVelocity);
+                    } else {
+                        intake.setPower(0);
+                        magazine.setVelocity(0);
+
+                    }
+                }
+                telemetry.addData("Shooter Speed", shooterVelocity);
+                telemetry.addData("Shooter Speed Far", shooterVelocityFar);
+                telemetry.addData("Tag Visible", tagVisible);
+                telemetry.addData("Active Velocity", tagVisible ? autoShooterVelocity :
+                        (ShooterRunningFast ? shooterVelocityFar : shooterVelocity));
+
+                telemetry.update();
+
+            }
+    }
+        // Add as a method in your class
+        public double getShooterVelocity ( double distanceInches)
+        {
+            double[] distances = {32.5, 46.2, 50.5, 57.4, 77.0, 85.0};
+            double[] velocities = {1390, 1340, 1260, 1290, 1440, 1510};
+
+            // Clamp to range
+            if (distanceInches <= distances[0]) return velocities[0];
+            if (distanceInches >= distances[distances.length - 1])
+                return velocities[velocities.length - 1];
+
+            // Find the two surrounding points and interpolate
+            for (int i = 0; i < distances.length - 1; i++) {
+                if (distanceInches <= distances[i + 1]) {
+                    double t = (distanceInches - distances[i]) / (distances[i + 1] - distances[i]);
+                    return velocities[i] + t * (velocities[i + 1] - velocities[i]);
                 }
             }
-            if (gamepad1.rightBumperWasPressed()) {
-                intakeOn = !intakeOn;
-                if (intakeOn) {
-                    intake.setPower(-1);
-                    magazine.setVelocity(magazineVelocity);
-                } else {
-                    intake.setPower(0);
-                    magazine.setPower(0);
-
-                }
-            }
-            telemetry.addData("Step Size", speedStep);
-            telemetry.addData("Shooter Speed", shooterVelocity);
-            telemetry.addData("Shooter Speed Far", shooterVelocityFar);
-            telemetry.update();
-
+            return velocities[velocities.length - 1];
         }
     }
-}
+
+
 

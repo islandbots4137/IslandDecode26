@@ -1,29 +1,21 @@
 
 package org.firstinspires.ftc.teamcode.Autonomous;
-
-
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.magazineVelocity;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocity;
-import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocityFar;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 
-@Autonomous(name = "Blue Far 12 Ball", group = "Autonomous")
+@Autonomous(name = "Blue Far 12", group = "Autonomous")
 public class BlueFar12 extends LinearOpMode {
 
     // ---------- PATHING ----------
@@ -33,46 +25,60 @@ public class BlueFar12 extends LinearOpMode {
 
     // ---------- HARDWARE ----------
     private DcMotorEx shooterMotor;
+
     private DcMotorEx shooterMotor2;
     private DcMotorEx magazine;
     private DcMotor roller;
+    private DcMotor frontLeftMotor;
+    private DcMotor backLeftMotor;
+    private DcMotor frontRightMotor;
+    private DcMotor backRightMotor;
     private Servo servo;
-
-    // magazine indexing
-    private int positions = 0;
-    boolean magazineRotating = false;
-
-    // state helpers
+    boolean rollerArrived = false;
+    private int positions = 0; // magazine index
     private ElapsedTime stateTimer = new ElapsedTime();
-    public boolean actionStarted = false;
+    public boolean actionStarted;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // ---------------- HARDWARE MAP ----------------
-        shooterMotor  = hardwareMap.get(DcMotorEx.class, "shooter1");
-        shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-        magazine      = hardwareMap.get(DcMotorEx.class, "magazine");
-        roller        = hardwareMap.get(DcMotor.class, "intake");
-        servo   = hardwareMap.get(Servo.class, "servo");
 
-        magazine.setTargetPosition(0);
+        // ---------------- HARDWARE MAP ----------------
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter1");
+        shooterMotor2=hardwareMap.get(DcMotorEx.class,"shooter2");
+        magazine = hardwareMap.get(DcMotorEx.class, "magazine");
+        roller = hardwareMap.get(DcMotor.class, "intake");
+        servo  = hardwareMap.get(Servo.class, "servo");
+        frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
+        backLeftMotor = hardwareMap.dcMotor.get("leftBack");
+        frontRightMotor = hardwareMap.dcMotor.get("rightFront");
+        backRightMotor = hardwareMap.dcMotor.get("rightBack");
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //  PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
+        //  shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        //  shooterMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        servo.setPosition(0.16);
+
         shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        servo.setPosition(0.445); // neutral
 
         // ---------- PATHING INIT ----------
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(55.5, 7, Math.toRadians(90)));
         paths = new Paths(follower);
 
         telemetry.addLine("READY — Press PLAY");
         telemetry.update();
         waitForStart();
         if (isStopRequested()) return;
+        //AUTO LOOP
 
         // ---------------- AUTONOMOUS LOOP ----------------
         while (opModeIsActive() && pathState != -1) {
@@ -91,7 +97,7 @@ public class BlueFar12 extends LinearOpMode {
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
                         shotSequence();
                         nextPathState();
                         actionStarted = false; // reset flag for next state
@@ -243,12 +249,16 @@ public class BlueFar12 extends LinearOpMode {
 
             }
 
+
             // Telemetry
             telemetry.addData("Path State", pathState);
-            telemetry.addData("Busy", follower.isBusy());
             telemetry.addData("X", follower.getPose().getX());
             telemetry.addData("Y", follower.getPose().getY());
             telemetry.addData("Heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
+            telemetry.addData("Shooter 1 Vel", shooterMotor.getVelocity());
+            telemetry.addData("Shooter 2 Vel", shooterMotor2.getVelocity());
+            telemetry.addData("Shooter Target", shooterVelocity);
+            telemetry.addData("Magazine Vel", magazine.getVelocity());
             telemetry.update();
         }
 
@@ -257,7 +267,7 @@ public class BlueFar12 extends LinearOpMode {
         rollerOff();
         telemetry.addLine("Autonomous Complete");
         telemetry.update();
-        sleep(1000);
+        sleep(2000);
     }
 
     private void nextPathState() {
@@ -265,6 +275,9 @@ public class BlueFar12 extends LinearOpMode {
     }
 
     // ---------------- PATH CLASS ----------------
+
+
+
     public static class Paths {
         public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11;
 
@@ -272,14 +285,14 @@ public class BlueFar12 extends LinearOpMode {
 
             Path1 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(56, 8),
-                            new Pose(60, 15)
+                            new Pose(55.5, 7),
+                            new Pose(54, 9)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(111)).build();
 
             Path2 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(60, 15),
+                            new Pose(54, 9),
                             new Pose(48, 35.000)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(111), Math.toRadians(180)).build();
@@ -294,13 +307,13 @@ public class BlueFar12 extends LinearOpMode {
             Path4 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(20.00, 35.000),
-                            new Pose(60, 15)
+                            new Pose(54, 9)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(113)).build();
             //shoot second 3 balls
             Path5 = follower.pathBuilder().addPath(
                     new BezierLine(
-                            new Pose(60, 15),
+                            new Pose(54, 9),
                             new Pose(48, 60)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(113), Math.toRadians(180)).build();
@@ -336,7 +349,7 @@ public class BlueFar12 extends LinearOpMode {
             Path10 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(8, 6),
-                            new Pose(60, 15)
+                            new Pose(55, 9)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(113)).build();
             Path11 = follower.pathBuilder().addPath(
@@ -349,10 +362,11 @@ public class BlueFar12 extends LinearOpMode {
         }
 
 
-        }
+    }
 
 
-    // ---------------- HARDWARE HELPER FUNCTIONS (KEPT) ----------------
+
+    // ---------------- HARDWARE HELPER FUNCTIONS ----------------
 
     public void rollerOn() {
         roller.setPower(-1);
@@ -405,8 +419,5 @@ public class BlueFar12 extends LinearOpMode {
         magazine.setVelocity(magazineVelocity);
     }
 
-
-    
-
-
 }
+
