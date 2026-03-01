@@ -30,6 +30,11 @@ public class teleop2 extends LinearOpMode {
     boolean indexing = false;
     boolean pushToggleState = false;
     boolean servoToggleState = false;
+    boolean lastDpadUpG2 = false;
+    boolean lastDpadDownG2 = false;
+    boolean lastCrossG2 = false;
+    double[] stepSizes = {5, 10, 50};
+    int stepIndex = 2; // starts at 50
 
     boolean servoMoving = false;
     boolean requireRelease = false;
@@ -47,7 +52,6 @@ public class teleop2 extends LinearOpMode {
     boolean autoTurnEnabled = false;
 
     //DigitalChannel magLimitSwitch;
-    ElapsedTime servoTimer = new ElapsedTime();
     boolean lastTriangleState = false;  // For edge detection
     boolean lastSquare = false;   // for edge detection
 
@@ -69,13 +73,12 @@ public class teleop2 extends LinearOpMode {
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        DcMotor magazine = hardwareMap.dcMotor.get("magazine");
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        DcMotorEx magazine = hardwareMap.get(DcMotorEx.class, "magazine");
+        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients magazinePIDF = new PIDFCoefficients(10.0, 0, 0, 12.0);
+        magazine.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, magazinePIDF);
         Servo servo = hardwareMap.servo.get("servo");
-        Servo block = hardwareMap.servo.get("block");
-
-        ElapsedTime indexTimer = new ElapsedTime();
 
         PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
         shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
@@ -112,8 +115,27 @@ public class teleop2 extends LinearOpMode {
             double x = gamepad1.left_stick_x; //left-right
             double rx = gamepad1.right_stick_x;//rotation
             boolean runAutoTurn;
-            boolean dpadUpPressed = gamepad1.dpad_up;
-            int serva = 0;
+            if (gamepad2.cross && !lastCrossG2) {
+                stepIndex = (stepIndex + 1) % stepSizes.length;
+            }
+            lastCrossG2 = gamepad2.cross;
+
+// ── Shooter speed adjustment ──
+            double speedStep = stepSizes[stepIndex];
+
+            if (gamepad2.dpad_up && !lastDpadUpG2) {
+                shooterVelocity += speedStep;
+                shooterVelocityFar += speedStep;
+            }
+            if (gamepad2.dpad_down && !lastDpadDownG2) {
+                shooterVelocity -= speedStep;
+                shooterVelocityFar -= speedStep;
+            }
+            lastDpadUpG2 = gamepad2.dpad_up;
+            lastDpadDownG2 = gamepad2.dpad_down;
+
+
+
 /*
             boolean square = gamepad2.squareWasPressed();
             if (square && !lastSquare) {
@@ -205,27 +227,6 @@ public class teleop2 extends LinearOpMode {
                 frontRightMotor.setPower(frontRightPower / 3);
                 backRightMotor.setPower(backRightPower / 3);
             }
-            if (dpadUpPressed && !lastDpadUp && sequenceState == 0) {
-                // Start the sequence
-                magazine.setPower(magazinePower);
-
-                servo.setPosition(servoForward);
-                sequenceTimer.reset();
-                sequenceState = 1;
-            }
-            lastDpadUp = dpadUpPressed;
-
-            // State 1: Wait 300ms, then move servo back
-            if (sequenceState == 1 && sequenceTimer.milliseconds() >= 300) {
-                servo.setPosition(servoBack);
-                sequenceTimer.reset();
-                sequenceState = 2;
-            }
-
-            // State 2: Wait 400ms, then set magazine target
-            if (sequenceState == 2 && sequenceTimer.milliseconds() >= 400) {
-                sequenceState = 0;  // Back to idle
-            }
 
             double lightPos = NO_TAG_POS;
 
@@ -260,8 +261,6 @@ public class teleop2 extends LinearOpMode {
                 }
             }
             aimLight.setPosition(lightPos);
-
-
             if (gamepad1.squareWasPressed()) {
                 ShooterRunning = !ShooterRunning;
                 if (ShooterRunning) ShooterRunningFast = false;
@@ -273,8 +272,8 @@ public class teleop2 extends LinearOpMode {
             }
 
             if (ShooterRunningFast) {
-                shooter.setVelocity(shooterVelocityFar);
-                shooter2.setVelocity(shooterVelocityFar);
+                shooter.setVelocity(-shooterVelocityFar);
+                shooter2.setVelocity(-shooterVelocityFar);
             } else if (ShooterRunning) {
                 shooter.setVelocity(shooterVelocity);
                 shooter2.setVelocity(shooterVelocity);
@@ -295,10 +294,10 @@ public class teleop2 extends LinearOpMode {
                 intakeReverse = !intakeReverse;
                 if (intakeReverse) {
                     intake.setPower(intakeOut);
-                    magazine.setPower(-magazinePower);
+                    magazine.setVelocity(-magazineVeloicty);
                 } else {
                     intake.setPower(0);
-                    magazine.setPower(0);
+                    magazine.setVelocity(0);
 
                 }
             }
@@ -306,14 +305,17 @@ public class teleop2 extends LinearOpMode {
                 intakeOn = !intakeOn;
                 if (intakeOn) {
                     intake.setPower(-1);
-                    magazine.setPower(-1);
+                    magazine.setVelocity(magazineVeloicty);
                 } else {
                     intake.setPower(0);
                     magazine.setPower(0);
 
                 }
             }
-
+            telemetry.addData("Step Size", speedStep);
+            telemetry.addData("Shooter Speed", shooterVelocity);
+            telemetry.addData("Shooter Speed Far", shooterVelocityFar);
+            telemetry.update();
 
         }
     }
