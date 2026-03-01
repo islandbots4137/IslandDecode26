@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -15,8 +14,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.*;
 
-@Autonomous(name = "Blue Far 6", group = "Autonomous")
-public class BlueFar6 extends LinearOpMode {
+@Autonomous(name = "Red Close 6", group = "Autonomous")
+public class RedClose6 extends LinearOpMode {
 
     // ---------- PATHING ----------
     private Follower follower;
@@ -29,8 +28,13 @@ public class BlueFar6 extends LinearOpMode {
     private DcMotorEx shooterMotor2;
     private DcMotorEx magazine;
     private DcMotor roller;
+    private DcMotor frontLeftMotor;
+    private DcMotor backLeftMotor;
+    private DcMotor frontRightMotor;
+    private DcMotor backRightMotor;
     private Servo servo;
     boolean rollerArrived = false;
+    private int positions = 0; // magazine index
     private ElapsedTime stateTimer = new ElapsedTime();
     public boolean actionStarted;
 
@@ -44,11 +48,15 @@ public class BlueFar6 extends LinearOpMode {
         magazine = hardwareMap.get(DcMotorEx.class, "magazine");
         roller = hardwareMap.get(DcMotor.class, "intake");
         servo  = hardwareMap.get(Servo.class, "servo");
+        frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
+        backLeftMotor = hardwareMap.dcMotor.get("leftBack");
+        frontRightMotor = hardwareMap.dcMotor.get("rightFront");
+        backRightMotor = hardwareMap.dcMotor.get("rightBack");
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //  PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
-        //  shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
-        //  shooterMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+
         shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -58,8 +66,9 @@ public class BlueFar6 extends LinearOpMode {
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // ---------- PATHING INIT ----------
+        // Mirrored start: x = 144 - 25.6 = 118.4, heading = 180 - 144 = 36
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(118.4, 129.87, Math.toRadians(36)));
         paths = new Paths(follower);
 
         telemetry.addLine("READY — Press PLAY");
@@ -74,13 +83,13 @@ public class BlueFar6 extends LinearOpMode {
 
                 case 0:
                     if (!follower.isBusy() && !actionStarted) {
+                        follower.followPath(paths.Path1);
                         rollerOn();
                         startShooter();
-                        follower.followPath(paths.Path1);
                         stateTimer.reset();
                         actionStarted = true;
                     }
-                    if (actionStarted && !follower.isBusy() && stateTimer.seconds() > 1) {
+                    if (actionStarted && !follower.isBusy() && stateTimer.seconds() > 0.5) {
                         shotSequence();
                         nextPathState();
                         actionStarted = false;
@@ -121,18 +130,19 @@ public class BlueFar6 extends LinearOpMode {
                         actionStarted = false;
                     }
                     break;
-                case 4:
+                case 7:
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path7);
+                        follower.followPath(paths.Path8);
                         actionStarted = true;
                     }
-                    if (actionStarted && !follower.isBusy())
-                    {
+                    if (actionStarted && !follower.isBusy()) {
                         pathState = -1;
                         actionStarted = false;
                     }
                     break;
             }
+
+            // Telemetry
             telemetry.addData("Path State", pathState);
             telemetry.addData("X", follower.getPose().getX());
             telemetry.addData("Y", follower.getPose().getY());
@@ -157,90 +167,105 @@ public class BlueFar6 extends LinearOpMode {
     }
 
     // ---------------- PATH CLASS ----------------
+    // All coordinates mirrored: new_x = 144 - old_x, y unchanged
+    // All headings mirrored:    new_heading = 180° - old_heading
+
 
     public static class Paths {
         public PathChain Path1;
-        public PathChain Path3;
         public PathChain Path2;
+        public PathChain Path3;
         public PathChain Path4;
         public PathChain Path5;
         public PathChain Path6;
         public PathChain Path7;
-
-
+        public PathChain Path8;
         public Paths(Follower follower) {
+            // Original: (25.605, 129.866) -> (61.5, 87), heading 144° -> 136.5°
+            // Mirrored: (118.395, 129.866) -> (82.5, 87), heading 36° -> 43.5°
             Path1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(56.000, 8.000),
-
-                                    new Pose(57.000, 12.000)
+                                    new Pose(118.395, 129.866),
+                                    new Pose(82.5, 87)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(110))
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(36), Math.toRadians(43.5))
                     .build();
 
-            Path3 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(57.000, 12.000),
-                                    new Pose(53.851, 25.406),
-                                    new Pose(46.333, 34.628)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(110), Math.toRadians(180))
-
-                    .build();
-
+            // Original: (61.5, 87) -> ctrl(51.11, 82.318) -> (45.656, 83.75), heading 136.5° -> 180°
+            // Mirrored: (82.5, 87) -> ctrl(92.89, 82.318) -> (98.344, 83.75), heading 43.5° -> 0°
             Path2 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(46.333, 34.628),
+                            new BezierCurve(
+                                    new Pose(82.5, 87),
+                                    new Pose(92.890, 82.318),
+                                    new Pose(98.344, 83.750)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(43.5), Math.toRadians(0))
+                    .build();
 
-                                    new Pose(20.575, 34.848)
+            // Original: (45.656, 83.75) -> (26.155, 83.75), tangent heading
+            // Mirrored: (98.344, 83.75) -> (117.845, 83.75), tangent heading
+            Path3 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(98.344, 83.750),
+                                    new Pose(117.845, 83.750)
                             )
                     ).setTangentHeadingInterpolation()
-
                     .build();
 
+            // Original: (26.155, 83.75) -> ctrl(52.11, 83.582) -> (61.5, 87), heading 180° -> 136.5°
+            // Mirrored: (117.845, 83.75) -> ctrl(91.89, 83.582) -> (82.5, 87), heading 0° -> 43.5°
             Path4 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(20.575, 34.848),
-
-                                    new Pose(57.000, 12.000)
+                            new BezierCurve(
+                                    new Pose(117.845, 83.750),
+                                    new Pose(91.890, 83.582),
+                                    new Pose(82.5, 87)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(110))
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(43.5))
                     .build();
 
+            // Original: (61.5, 87) -> ctrl(49.217, 65.797) -> (48, 61), heading 136.5° -> 180°
+            // Mirrored: (82.5, 87) -> ctrl(94.783, 65.797) -> (96, 61), heading 43.5° -> 0°
             Path5 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(57.000, 12.000),
-
-                                    new Pose(14.593, 10.406)
+                            new BezierCurve(
+                                    new Pose(82.5, 87),
+                                    new Pose(94.783, 65.797),
+                                    new Pose(96, 61)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(110), Math.toRadians(190))
-
+                    ).setLinearHeadingInterpolation(Math.toRadians(43.5), Math.toRadians(0))
                     .build();
 
+            // Original: (48, 61) -> (32, 61), tangent heading
+            // Mirrored: (96, 61) -> (112, 61), tangent heading
             Path6 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(14.593, 10.406),
-
-                                    new Pose(57.000, 12.000)
+                                    new Pose(96, 61),
+                                    new Pose(112.000, 61)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(190), Math.toRadians(110))
-
+                    ).setTangentHeadingInterpolation()
                     .build();
-            Path7 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(57.000, 12.000),
 
-                                    new Pose(36.059, 13.125)
+            // Original: (32, 61) -> ctrl(47.095, 70.792) -> (61.5, 87), heading 180° -> 136.5°
+            // Mirrored: (112, 61) -> ctrl(96.905, 70.792) -> (82.5, 87), heading 0° -> 43.5°
+            Path7 = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Pose(112.000, 61),
+                                    new Pose(96.905, 70.792),
+                                    new Pose(82.5, 87)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(110), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(43.5))
+                    .build();
+
+            // Original: (61.5, 87) -> (55.784, 113.441), heading 136.5° -> 225°
+            // Mirrored: (82.5, 87) -> (88.216, 113.441), heading 43.5° -> -45°
+            Path8 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(82.5, 87),
+                                    new Pose(88.216, 113.441)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(43.5), Math.toRadians(-45))
                     .build();
         }
     }
-
-
-
     // ---------------- HARDWARE HELPER FUNCTIONS ----------------
 
     public void rollerOn() {
@@ -295,4 +320,3 @@ public class BlueFar6 extends LinearOpMode {
     }
 
 }
-

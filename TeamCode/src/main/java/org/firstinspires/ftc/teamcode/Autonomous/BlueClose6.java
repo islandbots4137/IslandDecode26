@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.Autonomous;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -9,8 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -30,9 +29,12 @@ public class BlueClose6 extends LinearOpMode {
     private DcMotorEx shooterMotor2;
     private DcMotorEx magazine;
     private DcMotor roller;
+    private DcMotor frontLeftMotor;
+    private DcMotor backLeftMotor;
+    private DcMotor frontRightMotor;
+    private DcMotor backRightMotor;
     private Servo servo;
-    DigitalChannel magLimitSwitch;
-
+    boolean rollerArrived = false;
     private int positions = 0; // magazine index
     private ElapsedTime stateTimer = new ElapsedTime();
     public boolean actionStarted;
@@ -44,23 +46,28 @@ public class BlueClose6 extends LinearOpMode {
         // ---------------- HARDWARE MAP ----------------
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter1");
         shooterMotor2=hardwareMap.get(DcMotorEx.class,"shooter2");
-        magazine     = hardwareMap.get(DcMotorEx.class, "magazine");
-        roller       = hardwareMap.get(DcMotor.class, "intake");
+        magazine = hardwareMap.get(DcMotorEx.class, "magazine");
+        roller = hardwareMap.get(DcMotor.class, "intake");
         servo  = hardwareMap.get(Servo.class, "servo");
-
-        magazine.setTargetPosition(0);
+        frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
+        backLeftMotor = hardwareMap.dcMotor.get("leftBack");
+        frontRightMotor = hardwareMap.dcMotor.get("rightFront");
+        backRightMotor = hardwareMap.dcMotor.get("rightBack");
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        PIDFCoefficients shooterPIDF = new PIDFCoefficients(77.4, 0, 0, 12.777);
-        shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
-        shooterMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
-        magLimitSwitch = hardwareMap.get(DigitalChannel.class, "magSwitch"); // your config name
-        magLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        magazine.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooterMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
-        servo.setPosition(servoBack); // neutral
+        //  PIDFCoefficients shooterPIDF = new PIDFCoefficients(75.7, 0, 0, 10.577);
+        //  shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        //  shooterMotor2.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, shooterPIDF);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        servo.setPosition(0.16);
+
+        shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // ---------- PATHING INIT ----------
         follower = Constants.createFollower(hardwareMap);
@@ -71,134 +78,69 @@ public class BlueClose6 extends LinearOpMode {
         telemetry.update();
         waitForStart();
         if (isStopRequested()) return;
-
-        // ---------------- AUTONOMOUS LOOP ----------------
+        //AUTO LOOP
         while (opModeIsActive() && pathState != -1) {
             follower.update();
 
             switch (pathState) {
 
                 case 0:
-                    // Start path once
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path1);
-                        startShooterSlow();   // start shooter
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
+                        rollerOn();
+                        startShooter();
+                        stateTimer.reset();
+                        actionStarted = true;
                     }
-
-                    // After 2 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
+                    if (actionStarted && !follower.isBusy() && stateTimer.seconds() > 0.5) {
+                        shotSequence();
+                        nextPathState();
+                        actionStarted = false;
                     }
                     break;
-
 
                 case 1:
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path2);
                         rollerOn();
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
+                        follower.followPath(paths.Path2);
+                        actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
+                    if (actionStarted && !follower.isBusy()) {
                         nextPathState();
-                        actionStarted = false; // reset flag for next state
+                        actionStarted = false;
                     }
                     break;
-
                 case 2:
-                    // Start path once
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path3);
-                        rollerOn();
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
+                        actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
+                    if (actionStarted && !follower.isBusy()) {
                         nextPathState();
-                        actionStarted = false; // reset flag for next state
+                        actionStarted = false;
                     }
                     break;
-
                 case 3:
-                    // Start path once
                     if (!follower.isBusy() && !actionStarted) {
+                        rollerOn();
                         follower.followPath(paths.Path4);
-                        rollerOn();
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
+                        stateTimer.reset();
+                        actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
+                    if (actionStarted && !follower.isBusy() && stateTimer.seconds() > 2) {
+                        shotSequence();
                         nextPathState();
-                        actionStarted = false; // reset flag for next state
+                        actionStarted = false;
                     }
                     break;
-
-                case 4:
+                case 7:
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path5);
-                        rollerOn();
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
+                        follower.followPath(paths.Path8);
+                        actionStarted = true;
                     }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-
-                case 5:
-                    if (!follower.isBusy() && !actionStarted) {
-                        startShooterSlow();
-                        follower.followPath(paths.Path6);
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
-
-                    }
-                    // After 2 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 1) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 2) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
+                    if (actionStarted && !follower.isBusy()) {
+                        pathState = -1;
+                        actionStarted = false;
                     }
                     break;
             }
@@ -208,6 +150,10 @@ public class BlueClose6 extends LinearOpMode {
             telemetry.addData("X", follower.getPose().getX());
             telemetry.addData("Y", follower.getPose().getY());
             telemetry.addData("Heading (deg)", Math.toDegrees(follower.getPose().getHeading()));
+            telemetry.addData("Shooter 1 Vel", shooterMotor.getVelocity());
+            telemetry.addData("Shooter 2 Vel", shooterMotor2.getVelocity());
+            telemetry.addData("Shooter Target", shooterVelocity);
+            telemetry.addData("Magazine Vel", magazine.getVelocity());
             telemetry.update();
         }
 
@@ -225,6 +171,10 @@ public class BlueClose6 extends LinearOpMode {
 
     // ---------------- PATH CLASS ----------------
 
+
+
+
+
     public static class Paths {
         public PathChain Path1;
         public PathChain Path2;
@@ -232,158 +182,142 @@ public class BlueClose6 extends LinearOpMode {
         public PathChain Path4;
         public PathChain Path5;
         public PathChain Path6;
-
+        public PathChain Path7;
+        public PathChain Path8;
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     new Pose(25.605, 129.866),
 
-                                    new Pose(54.000, 89.250)
+                                    new Pose(61.5, 87)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(144), Math.toRadians(135))
+                    ).setLinearHeadingInterpolation(Math.toRadians(144), Math.toRadians(136.5))
 
                     .build();
 
             Path2 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(54.000, 89.250),
-
-                                    new Pose(41.000, 83.750)
+                            new BezierCurve(
+                                    new Pose(61.5, 87),
+                                    new Pose(51.110, 82.318),
+                                    new Pose(45.656, 83.750)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(136.5), Math.toRadians(180))
 
                     .build();
 
             Path3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(41.000, 83.750),
+                                    new Pose(45.656, 83.750),
 
-                                    new Pose(36.000, 83.750)
+                                    new Pose(26.155, 83.750)
                             )
                     ).setTangentHeadingInterpolation()
 
                     .build();
 
             Path4 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(36.000, 83.750),
-
-                                    new Pose(32.000, 83.750)
+                            new BezierCurve(
+                                    new Pose(26.155, 83.750),
+                                    new Pose(52.110, 83.582),
+                                    new Pose(61.5, 87)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(136.5))
 
                     .build();
 
             Path5 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(32.000, 83.750),
-
-                                    new Pose(24.000, 83.750)
+                            new BezierCurve(
+                                    new Pose(61.5, 87),
+                                    new Pose(49.217, 65.797),
+                                    new Pose(48, 61)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+                    ).setLinearHeadingInterpolation(Math.toRadians(136.5), Math.toRadians(180))
 
                     .build();
 
             Path6 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    new Pose(24.000, 83.750),
-                                    new Pose(44.100, 84.310),
-                                    new Pose(54.000, 89.250)
+                            new BezierLine(
+                                    new Pose(48, 61),
+
+                                    new Pose(32.000, 61)
                             )
-                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    ).setTangentHeadingInterpolation()
+
+                    .build();
+
+            Path7 = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    new Pose(32.000, 61),
+                                    new Pose(47.095, 70.792),
+                                    new Pose(61.5, 87)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(136.5))
+
+                    .build();
+
+            Path8 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    new Pose(61.5, 87),
+
+                                    new Pose(55.784, 113.441)
+                            )
+                    ).setLinearHeadingInterpolation(Math.toRadians(136.5), Math.toRadians(225))
 
                     .build();
         }
     }
-
-
     // ---------------- HARDWARE HELPER FUNCTIONS ----------------
 
-    public void rollerOn() { roller.setPower(-0.8); }
-    public void rollerOff() { roller.setPower(0.0); }
+    public void rollerOn() {
+        roller.setPower(-1);
+        magazine.setVelocity(magazineVelocity);
+    }
+    public void rollerOff() {
+        roller.setPower(0.0);
+        magazine.setVelocity(0);
+    }
 
-    public void startShooterFast() { shooterMotor.setVelocity(1290); }
-    public void startShooterSlow() {
-        shooterMotor.setVelocity(1200);
-        shooterMotor2.setVelocity(1200);}
+    public void startShooter() {
+        shooterMotor.setVelocity(shooterVelocity);
+        shooterMotor2.setVelocity(shooterVelocity);
+    }
+
+    public void startShooterFar() {
+        shooterMotor.setVelocity(shooterVelocityFar);
+        shooterMotor2.setVelocity(shooterVelocityFar);
+    }
+
     public void stopShooter() {
         shooterMotor.setVelocity(0);
         shooterMotor2.setVelocity(0);
     }
-    public void feedOneBall() {
-        // Fire servo
-        servo.setPosition(servoForward);
+    public void shotSequence() {
+        servo.setPosition(0.72);
         sleep(300);
-        // Retract servo
-        servo.setPosition(servoBack);
+        servo.setPosition(0.16);
         sleep(300);
-
-        // Fast encoder move toward next slot
-        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setTargetPosition(-220);
-        magazine.setPower(0.35);
-
-        while (opModeIsActive() && magazine.isBusy()) {
-            // wait for encoder move to finish
-        }
-
-        // Slow creep until magnet found
-        magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        magazine.setPower(-0.12);
-
-        while (opModeIsActive() && magLimitSwitch.getState()) {
-            // wait for magnet
-        }
-
-        magazine.setPower(0);
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        servo.setPosition(0.72);
+        sleep(300);
+        servo.setPosition(0.16);
+        servo.setPosition(0.72);
+        sleep(300);
+        servo.setPosition(0.16);
+        sleep(300);
+        servo.setPosition(0.72);
+        jiggle();
+        sleep(2700);
+        servo.setPosition(0.16);
+        sleep(300);
     }
-    private void spinUp() {
-        // Fast encoder move
-        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setTargetPosition(-220);
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setPower(-0.4);
-
-        ElapsedTime stuckTimer = new ElapsedTime();
-        int lastPos = magazine.getCurrentPosition();
-
-        // Wait for encoder move, with stuck detection
-        while (opModeIsActive() && magazine.isBusy()) {
-            if (stuckTimer.milliseconds() > 500) {
-                int currentPos = magazine.getCurrentPosition();
-                if (Math.abs(currentPos - lastPos) < 5) {
-                    // Stuck — reverse to free
-                    magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    magazine.setPower(0.3);
-                    servo.setPosition(servoBack);
-                    sleep(200);
-
-                    // Restart forward move
-                    magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    magazine.setTargetPosition(-220);
-                    magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    magazine.setPower(-0.4);
-                }
-                lastPos = magazine.getCurrentPosition();
-                stuckTimer.reset();
-            }
-            idle();
+    private void jiggle() {
+        for (int i = 0; i < 3; i++) {
+            magazine.setVelocity(magazineVelocity);
+            sleep(150);
+            magazine.setVelocity(-magazineVelocity);
+            sleep(150);
         }
-
-        // Slow creep until magnet found
-        if (magLimitSwitch.getState()) {
-            magazine.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            magazine.setPower(-0.12);
-
-            while (opModeIsActive() && magLimitSwitch.getState()) {
-                idle();
-            }
-        }
-
-        magazine.setPower(0);
-        magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        magazine.setVelocity(magazineVelocity);
     }
+
 }
 

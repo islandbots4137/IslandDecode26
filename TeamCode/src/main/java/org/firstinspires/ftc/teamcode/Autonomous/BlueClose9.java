@@ -230,7 +230,7 @@ public class BlueClose9 extends LinearOpMode {
 
             Path2 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(54.000, 89.250),
+                                    new Pose(61.5, 87),
                                     new Pose(51.110, 82.318),
                                     new Pose(45.656, 83.750)
                             )
@@ -260,7 +260,7 @@ public class BlueClose9 extends LinearOpMode {
 
             Path5 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    new Pose(54.000, 89.250),
+                                    new Pose(61.5, 87),
                                     new Pose(49.217, 65.797),
                                     new Pose(48, 61)
                             )
@@ -290,7 +290,7 @@ public class BlueClose9 extends LinearOpMode {
 
             Path8 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    new Pose(57.000, 92.250),
+                                    new Pose(61.5, 87),
 
                                     new Pose(55.784, 113.441)
                             )
