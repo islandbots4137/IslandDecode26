@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.Autonomous;
 
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.magazineVelocity;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocity;
+import static org.firstinspires.ftc.teamcode.Constants.TeleOpConstants.shooterVelocityFar;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -30,7 +34,7 @@ public class BlueFar12 extends LinearOpMode {
     private DcMotorEx shooterMotor2;
     private DcMotorEx magazine;
     private DcMotor roller;
-    private Servo feederServo;
+    private Servo servo;
 
     // magazine indexing
     private int positions = 0;
@@ -48,7 +52,7 @@ public class BlueFar12 extends LinearOpMode {
         shooterMotor2 = hardwareMap.get(DcMotorEx.class, "shooter2");
         magazine      = hardwareMap.get(DcMotorEx.class, "magazine");
         roller        = hardwareMap.get(DcMotor.class, "intake");
-        feederServo   = hardwareMap.get(Servo.class, "servo");
+        servo   = hardwareMap.get(Servo.class, "servo");
 
         magazine.setTargetPosition(0);
         magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -56,7 +60,7 @@ public class BlueFar12 extends LinearOpMode {
         magazine.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         shooterMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        feederServo.setPosition(0.6); // neutral
+        servo.setPosition(0.445); // neutral
 
         // ---------- PATHING INIT ----------
         follower = Constants.createFollower(hardwareMap);
@@ -80,52 +84,38 @@ public class BlueFar12 extends LinearOpMode {
                 case 0:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path1);
-                         optional: startShooterFast();
-                        // optional: rollerOff();
+                        rollerOn();
                         stateTimer.reset();
                         actionStarted = true;
                     }
 
                     if (actionStarted && stateTimer.seconds() > 2.5) {
-                        spinUp();     // move to next state
+                        rollerOn();
                         actionStarted = true; // reset flag for next state
                     }
-                    if (actionStarted && stateTimer.seconds() > 3) {
-                        push();     // move to next state
-                        actionStarted = true; // reset flag for next state
+                    if (!follower.isBusy() && !actionStarted) {
+                    startShooterFar();   // start shooter
+                    stateTimer.reset();   // start 1-second delay
+                    actionStarted = true; // mark that action has started
                     }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        spinUp();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4) {
-                        push();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        spinUp();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5) {
-                        push();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
+                    // After 1 second, feed the ball
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        shotSequence();
+                        nextPathState();
+                        actionStarted = false;
+                }
+
                     break;
 
                 case 1:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path2);
-                       rollerOn();
+                        rollerOn();
                         stateTimer.reset();
                         actionStarted = true;
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();      // move to next state
+                        rollerOn();     // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -142,7 +132,7 @@ public class BlueFar12 extends LinearOpMode {
                 // --------- SHOOT SEQUENCE STATE (uses sleep like your example)
                 case 4:
                     if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
+                        startShooterFar();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
@@ -210,33 +200,15 @@ public class BlueFar12 extends LinearOpMode {
                     }
                 case 8:
                     if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
+                        startShooterFar();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
-
                     // After 1 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
+                        shotSequence();
                     }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
+
 
                     break;
                 case 9:
@@ -259,33 +231,15 @@ public class BlueFar12 extends LinearOpMode {
                     }
                 case 11:
                     if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
+                        startShooterFar();   // start shooter
                         stateTimer.reset();   // start 1-second delay
                         actionStarted = true; // mark that action has started
                     }
-
                     // After 1 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
+                        shotSequence();
                     }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
+
 
                     break;
             }
@@ -395,44 +349,48 @@ public class BlueFar12 extends LinearOpMode {
 
     // ---------------- HARDWARE HELPER FUNCTIONS (KEPT) ----------------
 
-    private void rollerOn()  { roller.setPower(-1); }
-    private void rollerOff() { roller.setPower(0.0); }
-
-    private void startShooterFast() {
-        shooterMotor.setVelocity(1300);
-        shooterMotor2.setVelocity(1300);
+    public void rollerOn() {
+        roller.setPower(-1);
+        magazine.setVelocity(magazineVelocity);
+    }
+    public void rollerOff() {
+        roller.setPower(0.0);
+        magazine.setVelocity(magazineVelocity);
     }
 
-    private void startShooterSlow() {
-        shooterMotor.setVelocity(1280);
-        shooterMotor2.setVelocity(1280);
+    public void startShooter() {
+        shooterMotor.setVelocity(shooterVelocity);
+        shooterMotor2.setVelocity(shooterVelocity);
     }
 
-    private void stopShooter() {
-        shooterMotor.setPower(0.0);
-        shooterMotor2.setPower(0.0);
+    public void startShooterFar() {
+        shooterMotor.setVelocity(shooterVelocityFar);
+        shooterMotor2.setVelocity(shooterVelocityFar);
     }
-    private void push() {
-        feederServo.setPosition(0.1);
+
+    public void stopShooter() {
+        shooterMotor.setVelocity(0);
+        shooterMotor2.setVelocity(0);
+    }
+    public void shotSequence() {
+        // Drop servo to let balls through
+        servo.setPosition(0);
+        sleep(1500);
+
+        // Reverse roller and magazine briefly to clear any jams
+        roller.setPower(0.5);
+        magazine.setVelocity(-magazineVelocity);
         sleep(300);
-        feederServo.setPosition(0.6);
-    }
-    private void feedOneBall() throws InterruptedException {
-        feederServo.setPosition(0.1);
-        sleep(300);
-        feederServo.setPosition(0.6);
-        sleep(800);
-        positions -= 250;
-        magazine.setPower(0.45);
-        magazine.setTargetPosition(positions);
-        sleep(400);
+
+        // Spin forward to shoot
+        roller.setPower(-1);
+        servo.setPosition(0.445);
+        sleep(200);
+        servo.setPosition(0);
+        magazine.setVelocity(magazineVelocity);
+        sleep(1000);
+        // Stop everything
+        servo.setPosition(0.445);
     }
 
-    private void spinUp() throws InterruptedException {
-        magazineRotating = true;
-        magazine.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        magazine.setTargetPosition(-230); // tune this — slightly SHORT of the magnet
-        magazine.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        magazine.setPower(-0.35);
-    }
 }
