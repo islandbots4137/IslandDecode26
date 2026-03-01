@@ -85,30 +85,19 @@ public class BlueFar12 extends LinearOpMode {
 
                 case 0:
                     if (!follower.isBusy() && !actionStarted) {
+                        rollerOn();
+                        startShooterFar();
                         follower.followPath(paths.Path1);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
                     }
-
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        rollerOn();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (!follower.isBusy() && !actionStarted) {
-                    startShooterFar();   // start shooter
-                    stateTimer.reset();   // start 1-second delay
-                    actionStarted = true; // mark that action has started
-                    }
-                    // After 1 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                    if (actionStarted && stateTimer.seconds() > 3.5) {
                         shotSequence();
                         nextPathState();
-                        actionStarted = false;
-                }
+                        actionStarted = false; // reset flag for next state
 
-                    break;
-
+                        break;
+                    }
                 case 1:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path2);
@@ -125,9 +114,13 @@ public class BlueFar12 extends LinearOpMode {
 
 
                 case 3:
-                    if (!follower.isBusy()) {
+                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path3);
+                        actionStarted = true;
+                    }
+                    if (actionStarted && !follower.isBusy()) {
                         nextPathState();
+                        actionStarted = false;
                     }
                     break;
 
@@ -140,26 +133,11 @@ public class BlueFar12 extends LinearOpMode {
                     }
 
                     // After 1 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
                     if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
+                        shotSequence();
+                        nextPathState();
                         actionStarted = false; // reset flag for next state
+
                     }
                     break;
                 case 5:
@@ -170,7 +148,7 @@ public class BlueFar12 extends LinearOpMode {
                         actionStarted = true;
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
+                        rollerOn();     // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -184,12 +162,7 @@ public class BlueFar12 extends LinearOpMode {
                         actionStarted = true;
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        spinUp();
+                        rollerOn();     // move to next state
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
@@ -198,8 +171,14 @@ public class BlueFar12 extends LinearOpMode {
                 case 7:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path6);
-                        nextPathState();
+                        actionStarted = true;
                     }
+                    if (actionStarted && !follower.isBusy()) {
+                        shotSequence();
+                        nextPathState();
+                        actionStarted = false;
+                    }
+                    break;
                 case 8:
                     if (!follower.isBusy() && !actionStarted) {
                         startShooterFar();   // start shooter
@@ -208,29 +187,37 @@ public class BlueFar12 extends LinearOpMode {
                     }
                     // After 1 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 2.5) {
-                        shotSequence();
+                        nextPathState();
+                        actionStarted = false;
                     }
-
 
                     break;
                 case 9:
                     if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path7);
                         rollerOn();
+                        startShooterFar();
                         stateTimer.reset();
                         actionStarted = true;
                     }
                     if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
+                        shotSequence();
                         nextPathState();
                         actionStarted = false; // reset flag for next state
                     }
                     break;
                 case 10:
                     if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path8);
-                        nextPathState();
+                        startShooterFar();   // start shooter
+                        stateTimer.reset();   // start 1-second delay
+                        actionStarted = true; // mark that action has started
                     }
+                    // After 1 second, feed the ball
+                    if (actionStarted && stateTimer.seconds() > 2.5) {
+                        nextPathState();
+                        actionStarted = false;
+                    }
+                    break;
                 case 11:
                     if (!follower.isBusy() && !actionStarted) {
                         startShooterFar();   // start shooter
@@ -240,10 +227,20 @@ public class BlueFar12 extends LinearOpMode {
                     // After 1 second, feed the ball
                     if (actionStarted && stateTimer.seconds() > 2.5) {
                         shotSequence();
+                        nextPathState();
+                        actionStarted = false;
                     }
-
-
+                case 12:
+                    if (!follower.isBusy() && !actionStarted) {
+                        follower.followPath(paths.Path11);
+                        actionStarted = true;
+                    }
+                    if (actionStarted && !follower.isBusy()) {
+                        pathState = -1; // end autonomous
+                        actionStarted = false;
+                    }
                     break;
+
             }
 
             // Telemetry
@@ -269,7 +266,7 @@ public class BlueFar12 extends LinearOpMode {
 
     // ---------------- PATH CLASS ----------------
     public static class Paths {
-        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10;
+        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8, Path9, Path10, Path11;
 
         public Paths(Follower follower) {
 
@@ -342,6 +339,12 @@ public class BlueFar12 extends LinearOpMode {
                             new Pose(60, 15)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(113)).build();
+            Path11 = follower.pathBuilder().addPath(
+                    new BezierLine(
+                            new Pose(60, 15),
+                            new Pose(60, 36)
+                    )
+            ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(113)).build();
 
         }
 
@@ -357,7 +360,7 @@ public class BlueFar12 extends LinearOpMode {
     }
     public void rollerOff() {
         roller.setPower(0.0);
-        magazine.setVelocity(magazineVelocity);
+        magazine.setVelocity(0);
     }
 
     public void startShooter() {
@@ -376,24 +379,29 @@ public class BlueFar12 extends LinearOpMode {
     }
     public void shotSequence() {
         // Drop servo to let balls through
-        servo.setPosition(0);
-        sleep(1500);
+        servo.setPosition(0.72);
+        sleep(1000);
 
         // Reverse roller and magazine briefly to clear any jams
         roller.setPower(0.5);
         magazine.setVelocity(-magazineVelocity);
         sleep(300);
-
         // Spin forward to shoot
         roller.setPower(-1);
-        servo.setPosition(0.445);
-        sleep(200);
-        servo.setPosition(0);
         magazine.setVelocity(magazineVelocity);
+        // Drop servo once and bring back up
+        servo.setPosition(0.16);
+        sleep(300);
+        servo.setPosition(0.72);
         sleep(1000);
-        // Stop everything
-        servo.setPosition(0.445);
+
+        // Reset servo
+        servo.setPosition(0.16);
     }
 
+<<<<<<< Updated upstream
 }
 */
+=======
+}
+>>>>>>> Stashed changes
