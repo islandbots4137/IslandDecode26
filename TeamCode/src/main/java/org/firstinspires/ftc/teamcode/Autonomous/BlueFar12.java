@@ -1,4 +1,4 @@
-/*
+
 package org.firstinspires.ftc.teamcode.Autonomous;
 
 
@@ -378,30 +378,35 @@ public class BlueFar12 extends LinearOpMode {
         shooterMotor2.setVelocity(0);
     }
     public void shotSequence() {
-        // Drop servo to let balls through
         servo.setPosition(0.72);
-        sleep(1000);
-
-        // Reverse roller and magazine briefly to clear any jams
-        roller.setPower(0.5);
-        magazine.setVelocity(-magazineVelocity);
         sleep(300);
-        // Spin forward to shoot
-        roller.setPower(-1);
+        servo.setPosition(0.16);
+        sleep(300);
+        servo.setPosition(0.72);
+        sleep(300);
+        servo.setPosition(0.16);
+        servo.setPosition(0.72);
+        sleep(300);
+        servo.setPosition(0.16);
+        sleep(300);
+        servo.setPosition(0.72);
+        jiggle();
+        sleep(2700);
+        servo.setPosition(0.16);
+        sleep(300);
+    }
+    private void jiggle() {
+        for (int i = 0; i < 3; i++) {
+            magazine.setVelocity(magazineVelocity);
+            sleep(150);
+            magazine.setVelocity(-magazineVelocity);
+            sleep(150);
+        }
         magazine.setVelocity(magazineVelocity);
-        // Drop servo once and bring back up
-        servo.setPosition(0.16);
-        sleep(300);
-        servo.setPosition(0.72);
-        sleep(1000);
-
-        // Reset servo
-        servo.setPosition(0.16);
     }
 
-<<<<<<< Updated upstream
+
+    
+
+
 }
-*/
-=======
-}
->>>>>>> Stashed changes
