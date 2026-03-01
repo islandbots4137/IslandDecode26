@@ -26,27 +26,26 @@ public class Constants {
 
          .mass(12.7913)
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.05, 0, 0.01, 0.5))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))
             //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.06, 0, 0.001, 0.03))
             //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
 
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0.02, 0.002))
+         //   .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0.02, 0.002))
             //.secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
             //Uncomment one by one while tuning pid.
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0.0005,0.001,0.6,0.0006))
+          //  .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0.0005,0.001,0.6,0.0006))
             //.secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
 
             .centripetalScaling(0.0008) // RETUNE this
 
 
             //After tuning all of above run tests.
-            .useSecondaryTranslationalPIDF(true)
-            .useSecondaryHeadingPIDF(true)
-            .forwardZeroPowerAcceleration(-52.62)
-            .lateralZeroPowerAcceleration(-86.47)
-            .useSecondaryDrivePIDF(true);
+            //.useSecondaryTranslationalPIDF(true)
+            //.useSecondaryHeadingPIDF(true)
+            .forwardZeroPowerAcceleration(-33.07)
+            .lateralZeroPowerAcceleration(-68.74);
+            //.useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             // REMEMBER TO REVERSE ONCE WE TEST ON THE ROBOT
@@ -58,8 +57,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(71.75)
-            .yVelocity(47.95);
+            .xVelocity(82.13)
+            .yVelocity(42.92);
 
     //
 
@@ -82,7 +81,7 @@ public class Constants {
 //                    )
 //            );
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-0.2)
+            .forwardPodY(0.1)
             .strafePodX(-6.3)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
