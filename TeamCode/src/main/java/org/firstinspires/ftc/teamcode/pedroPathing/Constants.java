@@ -26,26 +26,15 @@ public class Constants {
 
          .mass(12.7913)
          // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
-            .translationalPIDFCoefficients(new PIDFCoefficients(0, 0, 0, 0))
-            //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
-         // tune in order of PIDF. Translation,Heading, Drive, Centripetal.
-            //.secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.095, 0, 0.005, 0.03))
 
-         //   .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0.02, 0.002))
-            //.secondaryHeadingPIDFCoefficients(new PIDFCoefficients(0.1,0,0.01,0))
-            //Uncomment one by one while tuning pid.
-          //  .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0.0005,0.001,0.6,0.0006))
-            //.secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.1,0,0.01,0.6,0.01))
-
-            .centripetalScaling(0.0008) // RETUNE this
+           .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.002, 0.03))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.006,0,0.001,0,0.03))
+            .centripetalScaling(0.0005) // RETUNE this
 
 
-            //After tuning all of above run tests.
-            //.useSecondaryTranslationalPIDF(true)
-            //.useSecondaryHeadingPIDF(true)
             .forwardZeroPowerAcceleration(-33.07)
             .lateralZeroPowerAcceleration(-68.74);
-            //.useSecondaryDrivePIDF(true);
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
             // REMEMBER TO REVERSE ONCE WE TEST ON THE ROBOT
