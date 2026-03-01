@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Blue Far 9 Ball", group = "Autonomous")
-public class BlueFar9 extends LinearOpMode {
+@Autonomous(name = "Blue Far 6 Ball", group = "Autonomous")
+public class BlueFar6 extends LinearOpMode {
 
     // ---------- PATHING ----------
     private Follower follower;
@@ -158,38 +158,6 @@ public class BlueFar9 extends LinearOpMode {
 
                 case 4:
                     if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
-                    }
-
-                    // After 1 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
-
-                    break;
-
-                case 5:
-                    if (!follower.isBusy() && !actionStarted) {
                         follower.followPath(paths.Path5);
                         rollerOn();
                         stateTimer.reset();
@@ -202,73 +170,9 @@ public class BlueFar9 extends LinearOpMode {
                     }
                     break;
 
-                case 6:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path6);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 7:
-                    if (!follower.isBusy()) {
-                        follower.followPath(paths.Path7);
-                        nextPathState();
-                    }
-                    break;
-
-                // --------- SHOOT SEQUENCE STATE (uses sleep like your example)
-                case 8:
-                    if (!follower.isBusy() && !actionStarted) {
-                        startShooterFast();   // start shooter
-                        stateTimer.reset();   // start 1-second delay
-                        actionStarted = true; // mark that action has started
-                    }
-
-                    // After 1 second, feed the ball
-                    if (actionStarted && stateTimer.seconds() > 2.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 3.5) {
-                        feedOneBall();      // move to next state
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 4.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 5.5) {
-                        feedOneBall();
-                        actionStarted = true; // reset flag for next state
-                    }
-                    if (actionStarted && stateTimer.seconds() > 6) {
-                        stopShooter();
-                        nextPathState();      // move to next state
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
-                case 9:
-                    if (!follower.isBusy() && !actionStarted) {
-                        follower.followPath(paths.Path8);
-                        rollerOn();
-                        stateTimer.reset();
-                        actionStarted = true;
-                    }
-                    if (actionStarted && stateTimer.seconds() > 1.5) {
-                        spinUp();
-                        nextPathState();
-                        actionStarted = false; // reset flag for next state
-                    }
-                    break;
 
 
-                case 10:
+                case 5:
                     if (!follower.isBusy() && !actionStarted) {
                         startShooterFast();   // start shooter
                         stateTimer.reset();   // start 1-second delay
@@ -324,7 +228,7 @@ public class BlueFar9 extends LinearOpMode {
 
     // ---------------- PATH CLASS ----------------
     public static class Paths {
-        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, Path7, Path8;
+        public PathChain Path1, Path2, Path3, Path4, Path5;
 
         public Paths(Follower follower) {
 
@@ -333,51 +237,30 @@ public class BlueFar9 extends LinearOpMode {
                             new Pose(55.125, 7.625),
                             new Pose(60, 15)
                     )
-            ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(111)).build();
+            ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(113)).build();
+
+
 
             Path2 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(60, 15),
-                            new Pose(48, 35.000)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(111), Math.toRadians(180)).build();
-
-            Path3 = follower.pathBuilder().addPath(
-                    new BezierLine(
-                            new Pose(48, 35.000),
-                            new Pose(20, 35.000)
-                    )
-            ).setConstantHeadingInterpolation(Math.toRadians(180)).build();
-
-
-            Path4 = follower.pathBuilder().addPath( //shoot second 3 balls
-                    new BezierLine(
-                            new Pose(20.00, 35.000),
-                            new Pose(60, 15)
-                    )
-            ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(113)).build();
-
-
-            Path5 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(60, 15),
                             new Pose(12, 27)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(113), Math.toRadians(210)).build();
 
-            Path6 = follower.pathBuilder().addPath(
+            Path3 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(12, 17),
                             new Pose(12, 11)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(210)).build();
-            Path7 = follower.pathBuilder().addPath(
+            Path4 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(12, 11),
                             new Pose(8, 11)
                     )
             ).setLinearHeadingInterpolation(Math.toRadians(210), Math.toRadians(210)).build();
-            Path8 = follower.pathBuilder().addPath(
+            Path5 = follower.pathBuilder().addPath(
                     new BezierLine(
                             new Pose(8, 11),
                             new Pose(60, 15)
